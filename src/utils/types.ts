@@ -80,7 +80,7 @@ export interface IEateries {
   phone: string;
   yandexmap: string;
   photo: IPhoto;
-  id: string;
+  route: string;
   menu: string;
   catalog: boolean;
   halls: IHall[];

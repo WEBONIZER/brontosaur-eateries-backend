@@ -4,23 +4,14 @@ import {
 } from 'mongoose';
 import { IEateries } from '../utils/types';
 
-const opeSchema = new Schema({
-  itemType: { type: String },
-  itemTitle: { type: String },
-  item: { type: String },
-  src: { type: String },
-  alt: { type: String },
-  enumerationArr: { type: [String] }
-});
-
 const openingHoursSchema = new Schema({
   closing: { type: Number },
   opening: { type: Number },
 });
 
 const photoSchema = new Schema({
-  closing: { type: String },
-  opening: { type: String },
+  src: { type: String },
+  alt: { type: String },
 });
 
 const photoToHallSchema = new Schema({
@@ -57,15 +48,15 @@ const tableToHallSchema = new Schema({
   photo: { type: String },
   places: { type: Number },
   chairs: { type: String },
-  orders: { type: orderToTableSchema },
+  orders: { type: [orderToTableSchema] },
   guests: { type: guestsToTableSchema },
 });
 
 const hallSchema = new Schema({
   name: { type: String },
   video: { type: String },
-  photos: { type: photoToHallSchema },
-  tables: { type: tableToHallSchema },
+  photos: { type: [photoToHallSchema] },
+  tables: { type: [tableToHallSchema] },
 });
 
 const eateriesSchema = new Schema<IEateries>({
@@ -134,7 +125,7 @@ const eateriesSchema = new Schema<IEateries>({
     type: String,
     required: true,
   },
-  id: {
+  route: {
     type: String,
     required: true,
   },
@@ -157,6 +148,6 @@ const eateriesSchema = new Schema<IEateries>({
   },
 });
 
-const EateriesModel = model<IEateries>('eateries', eateriesSchema);
+const EateriesModel = model<IEateries>('eaterie', eateriesSchema);
 
 export default EateriesModel; 
