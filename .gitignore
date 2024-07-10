@@ -21,3 +21,5 @@ node_modules
 .env.local
 .env.production
 .env.test
+
+.bat
