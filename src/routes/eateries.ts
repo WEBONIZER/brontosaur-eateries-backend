@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllEateries, getEateriesByName, postOneEaterie, removeEaterie, addLikeToEaterie } from '../controllers/eateries';
+import { getAllEateries, getEateriesByName, postOneEaterie, removeEaterie, addLikeToEaterie, removeLikeFromEaterie } from '../controllers/eateries';
 
 const eateries = Router();
 
@@ -8,7 +8,7 @@ eateries.post('/', postOneEaterie);
 eateries.delete('/:eateriesRoute', removeEaterie)
 eateries.get('/:eateriesRoute', getEateriesByName);
 eateries.patch('/:eateriesRoute/like', addLikeToEaterie);
-//eateries.patch('/:blogRoute/viewing', addViewingToBlog);
+eateries.delete('/:eateriesRoute/like', removeLikeFromEaterie);
 //eateries.patch('/:blogRoute/unlike', removeLikeFromBlog);
 //eateries.patch('/:blogRoute/unviewing', removeViewingFromBlog);
 

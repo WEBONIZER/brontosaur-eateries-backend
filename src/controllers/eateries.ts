@@ -115,6 +115,38 @@ export const addLikeToEaterie = (req: RequestCustom, res: Response, next: NextFu
         });
 };
 
+export const removeLikeFromEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const eateriesRoute = req.params.eateriesRoute;
+    const { like } = req.body;
+
+    if (!like || typeof like !== 'string') {
+        return next(new BadRequestError('Некорректные данные для удаления лайка'));
+    }
+
+    EateriesModel.findOneAndUpdate(
+        { route: eateriesRoute },
+        { $pull: { likes: like } },
+        { new: true }
+    )
+        .then((updatedEaterie) => {
+            if (!updatedEaterie) {
+                throw new NotFoundError('Заведение не найдено');
+            }
+
+            res.status(200).send({
+                status: 'success',
+                data: updatedEaterie,
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректное имя'));
+            } else {
+                next(new Error('Произошла ошибка при удалении лайка'));
+            }
+        });
+};
+
 export const addViewingToBlog = (req: RequestCustom, res: Response, next: NextFunction) => {
     const blogRoute = req.params.blogRoute;
     const { viewing } = req.body;
