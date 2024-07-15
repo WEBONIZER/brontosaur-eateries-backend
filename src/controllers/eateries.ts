@@ -152,16 +152,20 @@ export const addHallToEaterie = async (req: RequestCustom, res: Response, next: 
     const newHall = req.body.hall;
 
     try {
+        console.log(`Trying to find eatery: ${eateriesRoute}`);
         const eatery = await EateriesModel.findOne({ name: eateriesRoute });
         if (!eatery) {
-            return res.status(404).json({ message: "Eatery not found" });
+            console.log(`Eatery not found: ${eateriesRoute}`);
+            return res.status(404).json({ message: `Eatery "${eateriesRoute}" not found` });
         }
 
         eatery.halls.push(newHall);
+        console.log(`Adding new hall: ${JSON.stringify(newHall)}`);
         await eatery.save();
 
         res.status(200).json(eatery);
-    } catch (error) {
+    } catch (error: any) {
+        console.error(`Error adding hall to eatery: ${error.message}`);
         next(error);
     }
 };
