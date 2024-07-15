@@ -147,98 +147,39 @@ export const removeLikeFromEaterie = (req: RequestCustom, res: Response, next: N
         });
 };
 
-export const addViewingToBlog = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const blogRoute = req.params.blogRoute;
-    const { viewing } = req.body;
+export const addHallToEaterie = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { eateriesRoute } = req.params;
+    const newHall = req.body.hall;
 
-    if (!viewing || typeof viewing !== 'string') {
-        return next(new BadRequestError('Некорректные данные для лайка'));
+    try {
+        const eatery = await EateriesModel.findOne({ name: eateriesRoute });
+        if (!eatery) {
+            return res.status(404).json({ message: "Eatery not found" });
+        }
+
+        eatery.halls.push(newHall);
+        await eatery.save();
+
+        res.status(200).json(eatery);
+    } catch (error) {
+        next(error);
     }
-
-    EateriesModel.findOneAndUpdate(
-        { route: blogRoute },
-        { $push: { viewsCount: viewing } },
-        { new: true }
-    )
-        .then((updatedBlog) => {
-            if (!updatedBlog) {
-                throw new NotFoundError('Статья не найдена');
-            }
-
-            res.status(200).send({
-                status: 'success',
-                data: updatedBlog,
-            });
-        })
-        .catch((error) => {
-            if (error.name === 'CastError') {
-                next(new BadRequestError('Некорректный роут'));
-            } else {
-                next(new Error('Произошла ошибка при добавлении лайка'));
-            }
-        });
 };
 
-export const removeLikeFromBlog = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const blogRoute = req.params.blogRoute;
-    const { like } = req.body;
+export const removeHallFromEaterie = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { eateriesRoute, hallName } = req.params;
 
-    if (!like || typeof like !== 'string') {
-        return next(new BadRequestError('Некорректные данные для лайка'));
+    try {
+        const eatery = await EateriesModel.findOne({ name: eateriesRoute });
+        if (!eatery) {
+            return res.status(404).json({ message: "Eatery not found" });
+        }
+
+        eatery.halls = eatery.halls.filter(hall => hall.name !== hallName);
+        await eatery.save();
+
+        res.status(200).json(eatery);
+    } catch (error) {
+        next(error);
     }
-
-    EateriesModel.findOneAndUpdate(
-        { route: blogRoute },
-        { $pull: { likes: like } },
-        { new: true }
-    )
-        .then((updatedBlog) => {
-            if (!updatedBlog) {
-                throw new NotFoundError('Статья не найдена');
-            }
-
-            res.status(200).send({
-                status: 'success',
-                data: updatedBlog,
-            });
-        })
-        .catch((error) => {
-            if (error.name === 'CastError') {
-                next(new BadRequestError('Некорректный роут'));
-            } else {
-                next(new Error('Произошла ошибка при удалении лайка'));
-            }
-        });
-};
-
-export const removeViewingFromBlog = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const blogRoute = req.params.blogRoute;
-    const { viewing } = req.body;
-
-    if (!viewing || typeof viewing !== 'string') {
-        return next(new BadRequestError('Некорректные данные для просмотра'));
-    }
-
-    EateriesModel.findOneAndUpdate(
-        { route: blogRoute },
-        { $pull: { viewsCount: viewing } },
-        { new: true }
-    )
-        .then((updatedBlog) => {
-            if (!updatedBlog) {
-                throw new NotFoundError('Статья не найдена');
-            }
-
-            res.status(200).send({
-                status: 'success',
-                data: updatedBlog,
-            });
-        })
-        .catch((error) => {
-            if (error.name === 'CastError') {
-                next(new BadRequestError('Некорректный роут'));
-            } else {
-                next(new Error('Произошла ошибка при удалении просмотра'));
-            }
-        });
 };
