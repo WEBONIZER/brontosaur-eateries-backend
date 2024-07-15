@@ -1,0 +1,12 @@
+{
+  "exec": "ts-node index.ts",
+  "ext": "js,ts,jsx,tsx,json,html",
+  "ignore": [
+    "**/dist/*",
+    "**/node_modules/*",
+    "**/public/*",
+    "package-lock.json",
+    "package.json"
+  ],
+  "watch": ["**/*"]
+}
