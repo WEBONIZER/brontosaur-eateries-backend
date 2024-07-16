@@ -350,3 +350,57 @@ export const removeOrderFromTable = async (req: any, res: Response, next: NextFu
         return res.status(500).json({ message: "An error occurred", error: error.message });
     }
 };
+
+export const updateOrderInTable = async (req: any, res: Response, next: NextFunction) => {
+    const { eateriesRoute, hallRoute, tableNumber, orderNumber } = req.params;
+    const updatedOrder = req.body;
+  
+    // Проверка отсутствующих параметров
+    if (!eateriesRoute || !hallRoute || !tableNumber || !orderNumber || !updatedOrder) {
+      return res
+        .status(400)
+        .json({ message: 'eateriesRoute, hallRoute, tableNumber, orderNumber, and updatedOrder are required' });
+    }
+  
+    try {
+      // Поиск заведения по маршруту
+      const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
+  
+      if (!eatery) {
+        return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
+      }
+  
+      // Поиск зала по маршруту
+      const hall: any = eatery.halls.find((h: any) => h.hallRoute === hallRoute);
+  
+      if (!hall) {
+        return res.status(404).json({ message: `Hall with route "${hallRoute}" not found` });
+      }
+  
+      // Поиск стола по номеру
+      const table: any = hall.tables.find((t: any) => t.number === parseInt(tableNumber, 10));
+  
+      if (!table) {
+        return res.status(404).json({ message: `Table with number ${tableNumber} not found` });
+      }
+  
+      // Поиск заказа по номеру
+      const order: any = table.orders.find((o: any) => o.orderNumber === parseInt(orderNumber, 10));
+  
+      if (!order) {
+        return res.status(404).json({ message: `Order with number ${orderNumber} not found` });
+      }
+  
+      // Обновление свойств заказа
+      order.guests = updatedOrder.guests;
+      order.startTime = updatedOrder.startTime;
+      order.endTime = updatedOrder.endTime;
+      // Другие свойства заказа для обновления
+  
+      await eatery.save();
+  
+      res.status(200).json({ message: `Order ${orderNumber} updated successfully` });
+    } catch (error: any) {
+      next(error);
+    }
+  };
