@@ -264,7 +264,7 @@ export const removeTableFromHall = async (req: any, res: Response, next: NextFun
 };
 
 export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute, hall, tableNumber } = req.params;
+    const { barName: eateriesRoute, hall, tableNumber } = req.params;
     const newOrder = req.body;
 
     // Логирование входящих параметров
@@ -279,7 +279,7 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
         console.error('Missing hall');
     }
     if (!tableNumber) {
-        console.error('Missing tableNumber');
+        console.error('Missing tableNumber', tableNumber);
     }
     if (!newOrder.orderNumber) {
         console.error('Missing orderNumber');
@@ -291,7 +291,7 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
 
     try {
         // Поиск заведения по маршруту
-        const eatery = await EateriesModel.findOne({ route: eateriesRoute });
+        const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
 
         if (!eatery) {
             console.error(`Eatery with route "${eateriesRoute}" not found`);
@@ -308,7 +308,7 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
         });
 
         // Проверка на существование заказа с таким номером
-        const existingOrder = eatery.halls.some((hallItem: any) =>
+        const existingOrder: any = eatery.halls.some((hallItem: any) =>
             hallItem.tables.some((table: any) =>
                 table.orders.some((order: any) => order.orderNumber === newOrder.orderNumber)
             )
@@ -319,7 +319,7 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
         }
 
         // Найти конкретную таблицу
-        let tableFound = false;
+        let tableFound: boolean = false;
         eatery.halls.forEach((hallItem: any) => {
             if (hallItem.hallRoute === hall) {
                 hallItem.tables.forEach((table: any) => {
