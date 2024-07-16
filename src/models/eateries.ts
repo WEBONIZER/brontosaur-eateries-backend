@@ -32,6 +32,11 @@ const endTimeSchema = new Schema({
 const orderToTableSchema = new Schema({
   guests: { type: Number },
   tableNumber: { type: Number },
+  orderNumber: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
   barName: { type: String },
   date: { type: String },
   startTime: { type: startTimeSchema },
@@ -44,7 +49,11 @@ const guestsToTableSchema = new Schema({
 });
 
 const tableToHallSchema = new Schema({
-  number: { type: Number },
+  number: { 
+    type: Number,    
+    required: true,
+    unique: true,
+  },
   photo: { type: String },
   places: { type: Number },
   chairs: { type: String },
@@ -53,6 +62,7 @@ const tableToHallSchema = new Schema({
 });
 
 const hallSchema = new Schema({
+  hallRoute:{ type: String },
   name: { type: String },
   video: { type: String },
   photos: { type: [photoToHallSchema] },

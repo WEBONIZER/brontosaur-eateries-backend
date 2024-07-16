@@ -7,7 +7,10 @@ import {
     addLikeToEaterie,
     removeLikeFromEaterie,
     addHallToEaterie,
-    removeHallFromEaterie
+    removeHallFromEaterie,
+    addTableToHall,
+    removeTableFromHall,
+    addOrderToTable
 } from '../controllers/eateries';
 
 const eateries = Router();
@@ -20,7 +23,12 @@ eateries.patch('/:eateriesRoute/like', addLikeToEaterie);
 eateries.delete('/:eateriesRoute/like', removeLikeFromEaterie);
 
 // Добавление и удаление залов
-eateries.post('/:eateriesRoute/halls', addHallToEaterie); // Добавить зал
-eateries.delete('/:eateriesRoute/halls/:hallName', removeHallFromEaterie); // Удалить зал по имени
+eateries.post('/:eateriesRoute/halls', addHallToEaterie);
+eateries.delete('/:eateriesRoute/halls/:hallRoute', removeHallFromEaterie); // Удалить зал по имени
+
+eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
+eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber', removeTableFromHall);
+
+eateries.post('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders', addOrderToTable);
 
 export default eateries; 

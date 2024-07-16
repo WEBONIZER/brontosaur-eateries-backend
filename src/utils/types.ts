@@ -34,6 +34,7 @@ interface IEndTime {
 
 interface IOrderToTable {
   guests: number;
+  orderNumber: number;
   tableNumber: number;
   barName: string;
   date: string;
@@ -56,6 +57,7 @@ interface ITable {
 }
 
 interface IHall {
+  hallRoute: string;
   name: string;
   video: string;
   photos: IPhotoToHall[];
