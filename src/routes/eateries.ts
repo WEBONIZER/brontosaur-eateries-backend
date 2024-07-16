@@ -10,7 +10,8 @@ import {
     removeHallFromEaterie,
     addTableToHall,
     removeTableFromHall,
-    addOrderToTable
+    addOrderToTable,
+    removeOrderFromTable
 } from '../controllers/eateries';
 
 const eateries = Router();
@@ -30,5 +31,6 @@ eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber', removeTableFromHall);
 
 eateries.post('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders', addOrderToTable);
+eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);
 
 export default eateries; 

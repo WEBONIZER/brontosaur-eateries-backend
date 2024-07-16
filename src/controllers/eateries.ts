@@ -157,7 +157,7 @@ export const addHallToEaterie = async (req: any, res: Response, next: NextFuncti
     if (!newHall) {
         return res.status(400).json({ message: 'No hall data provided' });
     }
-    
+
     try {
         const eatery = await EateriesModel.findOne({ route: eateriesRoute });
         if (!eatery) {
@@ -264,29 +264,12 @@ export const removeTableFromHall = async (req: any, res: Response, next: NextFun
 };
 
 export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
-    const { barName: eateriesRoute, hall, tableNumber } = req.params;
+    const { eateriesRoute, hallRoute, tableNumber } = req.params;
     const newOrder = req.body;
 
-    // Логирование входящих параметров
-    console.log('Received parameters:', { eateriesRoute, hall, tableNumber });
-    console.log('Request body:', req.body);
-
     // Проверка отсутствующих параметров
-    if (!eateriesRoute) {
-        console.error('Missing eateriesRoute');
-    }
-    if (!hall) {
-        console.error('Missing hall');
-    }
-    if (!tableNumber) {
-        console.error('Missing tableNumber', tableNumber);
-    }
-    if (!newOrder.orderNumber) {
-        console.error('Missing orderNumber');
-    }
-
-    if (!eateriesRoute || !hall || typeof tableNumber !== 'string' || !newOrder.orderNumber) {
-        return res.status(400).json({ message: 'Eateries Route, Hall, Table Number, and Order Number are required' });
+    if (!eateriesRoute || !hallRoute || !tableNumber || !newOrder.orderNumber) {
+        return res.status(400).json({ message: 'eateriesRoute, hallRoute, tableNumber, and orderNumber are required' });
     }
 
     try {
@@ -294,18 +277,8 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
         const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
 
         if (!eatery) {
-            console.error(`Eatery with route "${eateriesRoute}" not found`);
             return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
         }
-
-        // Логирование найденного заведения и его структуры залов и столов
-        console.log('Eatery found:', eatery);
-        eatery.halls.forEach((hallItem: any) => {
-            console.log('Hall:', hallItem.hallRoute);
-            hallItem.tables.forEach((table: any) => {
-                console.log('Table number:', table.tableNumber);
-            });
-        });
 
         // Проверка на существование заказа с таким номером
         const existingOrder: any = eatery.halls.some((hallItem: any) =>
@@ -314,16 +287,15 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
             )
         );
         if (existingOrder) {
-            console.error(`Order number "${newOrder.orderNumber}" already exists`);
             return res.status(400).json({ message: `Order number "${newOrder.orderNumber}" already exists` });
         }
 
         // Найти конкретную таблицу
         let tableFound: boolean = false;
         eatery.halls.forEach((hallItem: any) => {
-            if (hallItem.hallRoute === hall) {
+            if (hallItem.hallRoute === hallRoute) {
                 hallItem.tables.forEach((table: any) => {
-                    if (table.tableNumber === parseInt(tableNumber, 10)) {
+                    if (table.number == tableNumber) {
                         table.orders.push(newOrder);
                         tableFound = true;
                     }
@@ -332,15 +304,49 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
         });
 
         if (!tableFound) {
-            console.error(`Table number "${tableNumber}" not found in hall "${hall}" of eatery "${eateriesRoute}"`);
-            return res.status(404).json({ message: `Table number "${tableNumber}" not found` });
+            return res.status(404).json({ message: `Table number "${tableNumber}" not found in hall "${hallRoute}" of eatery "${eateriesRoute}"` });
         }
 
         await eatery.save();
 
         res.status(200).json({ message: 'Order added successfully' });
     } catch (error) {
-        console.error('Error adding order to table:', error);
         next(error);
+    }
+};
+
+export const removeOrderFromTable = async (req: any, res: Response, next: NextFunction) => {
+    const { eateriesRoute, hallRoute, tableNumber, orderNumber } = req.params;
+
+    try {
+        const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
+
+        if (!eatery) {
+            return res.status(404).json({ message: `Eatery with route '${eateriesRoute}' not found` });
+        }
+
+        const hall: any = eatery.halls.find((h: any) => h.hallRoute === hallRoute);
+
+        if (!hall) {
+            return res.status(404).json({ message: `Hall with route '${hallRoute}' not found` });
+        }
+
+        const table: any = hall.tables.find((t: any) => t.number === parseInt(tableNumber, 10));
+
+        if (!table) {
+            return res.status(404).json({ message: `Table with number ${tableNumber} not found` });
+        }
+
+        const orderIndex: number = table.orders.findIndex((o: any) => o.orderNumber === parseInt(orderNumber, 10));
+
+        if (orderIndex !== -1) {
+            table.orders.splice(orderIndex, 1);
+            await eatery.save();
+            return res.json({ message: `Order ${orderNumber} successfully removed from table ${tableNumber}` });
+        } else {
+            return res.status(404).json({ message: `Order with number ${orderNumber} not found` });
+        }
+    } catch (error: any) {
+        return res.status(500).json({ message: "An error occurred", error: error.message });
     }
 };
