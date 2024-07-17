@@ -64,6 +64,11 @@ interface IHall {
   tables: ITable[];
 }
 
+interface IRestaurant {
+  lat: number;
+  lon: number;
+}
+
 export interface IEateries {
   name: string;
   deposit: number;
@@ -71,6 +76,7 @@ export interface IEateries {
   description: string;
   city: string;
   adress: string;
+  coordinates: IRestaurant;
   averageBill: number;
   establishmentType: string;
   likes: string[];

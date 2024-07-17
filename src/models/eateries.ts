@@ -49,8 +49,8 @@ const guestsToTableSchema = new Schema({
 });
 
 const tableToHallSchema = new Schema({
-  number: { 
-    type: Number,    
+  number: {
+    type: Number,
     required: true,
     unique: true,
   },
@@ -62,11 +62,22 @@ const tableToHallSchema = new Schema({
 });
 
 const hallSchema = new Schema({
-  hallRoute:{ type: String },
+  hallRoute: { type: String },
   name: { type: String },
   video: { type: String },
   photos: { type: [photoToHallSchema] },
   tables: { type: [tableToHallSchema] },
+});
+
+const coordinatesSchema = new Schema({
+  lat: {
+    type: Number,
+    required: false,
+  },
+  lon: {
+    type: Number,
+    required: false,
+  },
 });
 
 const eateriesSchema = new Schema<IEateries>({
@@ -95,6 +106,7 @@ const eateriesSchema = new Schema<IEateries>({
     type: String,
     required: true,
   },
+  coordinates: coordinatesSchema,
   averageBill: {
     type: Number,
     required: true,
