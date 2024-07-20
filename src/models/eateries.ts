@@ -119,6 +119,10 @@ const eateriesSchema = new Schema<IEateries>({
     type: [String],
     required: true,
   },
+  viewsCount: {
+    type: [String],
+    required: true,
+  },
   disabledDates: {
     type: [String],
     required: true,

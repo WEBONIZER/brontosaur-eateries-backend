@@ -80,6 +80,7 @@ export interface IEateries {
   averageBill: number;
   establishmentType: string;
   likes: string[];
+  viewsCount: string[];
   disabledDates: string[];
   kitchenType: string;
   openingHours: IOpeningHours;

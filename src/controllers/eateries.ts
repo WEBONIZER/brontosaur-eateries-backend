@@ -48,8 +48,8 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
 };
 
 export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const { name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls } = req.body;
-    EateriesModel.create({ name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls })
+    const { name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, viewsCount, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls } = req.body;
+    EateriesModel.create({ name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, viewsCount, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls })
         .then((data) => res.status(201).send({
             status: 'success',
             data,
@@ -354,53 +354,85 @@ export const removeOrderFromTable = async (req: any, res: Response, next: NextFu
 export const updateOrderInTable = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, hallRoute, tableNumber, orderNumber } = req.params;
     const updatedOrder = req.body;
-  
+
     // Проверка отсутствующих параметров
     if (!eateriesRoute || !hallRoute || !tableNumber || !orderNumber || !updatedOrder) {
-      return res
-        .status(400)
-        .json({ message: 'eateriesRoute, hallRoute, tableNumber, orderNumber, and updatedOrder are required' });
+        return res
+            .status(400)
+            .json({ message: 'eateriesRoute, hallRoute, tableNumber, orderNumber, and updatedOrder are required' });
     }
-  
+
     try {
-      // Поиск заведения по маршруту
-      const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
-  
-      if (!eatery) {
-        return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
-      }
-  
-      // Поиск зала по маршруту
-      const hall: any = eatery.halls.find((h: any) => h.hallRoute === hallRoute);
-  
-      if (!hall) {
-        return res.status(404).json({ message: `Hall with route "${hallRoute}" not found` });
-      }
-  
-      // Поиск стола по номеру
-      const table: any = hall.tables.find((t: any) => t.number === parseInt(tableNumber, 10));
-  
-      if (!table) {
-        return res.status(404).json({ message: `Table with number ${tableNumber} not found` });
-      }
-  
-      // Поиск заказа по номеру
-      const order: any = table.orders.find((o: any) => o.orderNumber === parseInt(orderNumber, 10));
-  
-      if (!order) {
-        return res.status(404).json({ message: `Order with number ${orderNumber} not found` });
-      }
-  
-      // Обновление свойств заказа
-      order.guests = updatedOrder.guests;
-      order.startTime = updatedOrder.startTime;
-      order.endTime = updatedOrder.endTime;
-      // Другие свойства заказа для обновления
-  
-      await eatery.save();
-  
-      res.status(200).json({ message: `Order ${orderNumber} updated successfully` });
+        // Поиск заведения по маршруту
+        const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
+
+        if (!eatery) {
+            return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
+        }
+
+        // Поиск зала по маршруту
+        const hall: any = eatery.halls.find((h: any) => h.hallRoute === hallRoute);
+
+        if (!hall) {
+            return res.status(404).json({ message: `Hall with route "${hallRoute}" not found` });
+        }
+
+        // Поиск стола по номеру
+        const table: any = hall.tables.find((t: any) => t.number === parseInt(tableNumber, 10));
+
+        if (!table) {
+            return res.status(404).json({ message: `Table with number ${tableNumber} not found` });
+        }
+
+        // Поиск заказа по номеру
+        const order: any = table.orders.find((o: any) => o.orderNumber === parseInt(orderNumber, 10));
+
+        if (!order) {
+            return res.status(404).json({ message: `Order with number ${orderNumber} not found` });
+        }
+
+        // Обновление свойств заказа
+        order.guests = updatedOrder.guests;
+        order.startTime = updatedOrder.startTime;
+        order.endTime = updatedOrder.endTime;
+        // Другие свойства заказа для обновления
+
+        await eatery.save();
+
+        res.status(200).json({ message: `Order ${orderNumber} updated successfully` });
     } catch (error: any) {
-      next(error);
+        next(error);
     }
-  };
+};
+
+export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const eateriesRoute = req.params.eateriesRoute;
+    const { viewsCount } = req.body;
+
+    if (!viewsCount || typeof viewsCount !== 'string') {
+        return next(new BadRequestError('Некорректные данные для лайка'));
+    }
+
+    EateriesModel.findOneAndUpdate(
+        { route: eateriesRoute },
+        { $addToSet: { viewsCount: viewsCount } },
+        { new: true }
+    )
+        .then((updatedEaterie) => {
+            if (!updatedEaterie) {
+                throw new NotFoundError('Заведение не найдено');
+            }
+
+            res.status(200).send({
+                status: 'success',
+                data: updatedEaterie,
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректное имя'));
+            } else {
+                next(new Error('Произошла ошибка при добавлении лайка'));
+            }
+        });
+};

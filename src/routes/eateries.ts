@@ -12,7 +12,8 @@ import {
     removeTableFromHall,
     addOrderToTable,
     removeOrderFromTable,
-    updateOrderInTable
+    updateOrderInTable,
+    addViewsToEaterie
 } from '../controllers/eateries';
 
 const eateries = Router();
@@ -34,5 +35,7 @@ eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber', removeTa
 eateries.post('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders', addOrderToTable);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);
 eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', updateOrderInTable);
+
+eateries.patch('/:eateriesRoute/views', addViewsToEaterie);
 
 export default eateries; 
