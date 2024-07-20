@@ -407,15 +407,15 @@ export const updateOrderInTable = async (req: any, res: Response, next: NextFunc
 
 export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
-    const { viewsCount } = req.body;
+    const { views } = req.body;
 
-    if (!viewsCount || typeof viewsCount !== 'string') {
+    if (!views || typeof views !== 'string') {
         return next(new BadRequestError('Некорректные данные для лайка'));
     }
 
     EateriesModel.findOneAndUpdate(
         { route: eateriesRoute },
-        { $addToSet: { viewsCount: viewsCount } },
+        { $addToSet: { viewsCount: views } },
         { new: true }
     )
         .then((updatedEaterie) => {
