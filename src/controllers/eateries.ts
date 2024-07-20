@@ -410,12 +410,12 @@ export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextF
     const { views } = req.body;
 
     if (!views || typeof views !== 'string') {
-        return next(new BadRequestError('Некорректные данные для лайка'));
+        return next(new BadRequestError('Некорректные данные для просмотра'));
     }
 
     EateriesModel.findOneAndUpdate(
         { route: eateriesRoute },
-        { $addToSet: { viewsCount: views } },
+        { $push: { viewsCount: views } }, // Изменено с $addToSet на $push
         { new: true }
     )
         .then((updatedEaterie) => {
@@ -432,7 +432,7 @@ export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextF
             if (error.name === 'CastError') {
                 next(new BadRequestError('Некорректное имя'));
             } else {
-                next(new Error('Произошла ошибка при добавлении лайка'));
+                next(new Error('Произошла ошибка при добавлении просмотра'));
             }
         });
 };
