@@ -93,4 +93,6 @@ export interface IEateries {
   menu: string;
   catalog: boolean;
   halls: IHall[];
+  tagTitle: string;
+  tagKeywords: string;
 }

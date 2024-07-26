@@ -48,8 +48,60 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
 };
 
 export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const { name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, viewsCount, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls } = req.body;
-    EateriesModel.create({ name, title, deposit, description, city, adress, coordinates, averageBill, establishmentType, likes, viewsCount, disabledDates, kitchenType, openingHours, rating, metro, phone, yandexmap, route, menu, catalog, photo, halls })
+    const {
+        name,
+        title,
+        deposit,
+        description,
+        city,
+        adress,
+        coordinates,
+        averageBill,
+        establishmentType,
+        likes,
+        viewsCount,
+        disabledDates,
+        kitchenType,
+        openingHours,
+        rating,
+        metro,
+        phone,
+        yandexmap,
+        route,
+        menu,
+        catalog,
+        photo,
+        halls,
+        tagTitle,
+        tagKeywords
+    } = req.body;
+    EateriesModel.create({
+        name,
+        title,
+        deposit,
+        description,
+        city,
+        adress,
+        coordinates,
+        averageBill,
+        establishmentType,
+        likes,
+        viewsCount,
+        disabledDates,
+        kitchenType,
+        openingHours,
+        rating,
+        metro,
+        phone,
+        yandexmap,
+        route,
+        menu,
+        catalog,
+        photo,
+        halls,
+        tagTitle,
+        tagKeywords
+    })
         .then((data) => res.status(201).send({
             status: 'success',
             data,

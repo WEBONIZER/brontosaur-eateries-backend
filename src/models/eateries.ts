@@ -172,6 +172,14 @@ const eateriesSchema = new Schema<IEateries>({
     type: [hallSchema],
     required: true,
   },
+  tagTitle: {
+    type: String,
+    required: false,
+  },
+  tagKeywords: {
+    type: String,
+    required: false,
+  }
 });
 
 const EateriesModel = model<IEateries>('eaterie', eateriesSchema);
