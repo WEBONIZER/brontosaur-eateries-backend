@@ -32,7 +32,7 @@ eateries.delete('/:eateriesRoute/halls/:hallRoute', removeHallFromEaterie); // Ð
 eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber', removeTableFromHall);
 
-eateries.post('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders', addOrderToTable);
+eateries.post('/:eateriesRoute/tables/:tableNumber/orders', addOrderToTable);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);
 eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', updateOrderInTable);
 

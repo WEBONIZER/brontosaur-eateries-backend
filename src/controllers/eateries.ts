@@ -316,48 +316,26 @@ export const removeTableFromHall = async (req: any, res: Response, next: NextFun
 };
 
 export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute, hallRoute, tableNumber } = req.params;
+    const { eateriesRoute, tableNumber } = req.params;
     const newOrder = req.body;
 
-    // Проверка отсутствующих параметров
-    if (!eateriesRoute || !hallRoute || !tableNumber || !newOrder.orderNumber) {
-        return res.status(400).json({ message: 'eateriesRoute, hallRoute, tableNumber, and orderNumber are required' });
-    }
-
+    // Поиск заведения по маршруту
     try {
-        // Поиск заведения по маршруту
         const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
 
         if (!eatery) {
             return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
         }
 
-        // Проверка на существование заказа с таким номером
-        const existingOrder: any = eatery.halls.some((hallItem: any) =>
-            hallItem.tables.some((table: any) =>
-                table.orders.some((order: any) => order.orderNumber === newOrder.orderNumber)
-            )
-        );
-        if (existingOrder) {
-            return res.status(400).json({ message: `Order number "${newOrder.orderNumber}" already exists` });
+        // Найти конкретную таблицу по _id
+        const table = eatery.halls.flatMap((h: any) => h.tables).find((t: any) => t._id.toString() === tableNumber);
+
+        if (!table) {
+            return res.status(404).json({ message: `Table with _id "${tableNumber}" not found in eatery "${eateriesRoute}"` });
         }
 
-        // Найти конкретную таблицу
-        let tableFound: boolean = false;
-        eatery.halls.forEach((hallItem: any) => {
-            if (hallItem.hallRoute === hallRoute) {
-                hallItem.tables.forEach((table: any) => {
-                    if (table.number == tableNumber) {
-                        table.orders.push(newOrder);
-                        tableFound = true;
-                    }
-                });
-            }
-        });
-
-        if (!tableFound) {
-            return res.status(404).json({ message: `Table number "${tableNumber}" not found in hall "${hallRoute}" of eatery "${eateriesRoute}"` });
-        }
+        // Добавление нового заказа
+        table.orders.push(newOrder);
 
         await eatery.save();
 
