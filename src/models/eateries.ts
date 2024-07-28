@@ -27,7 +27,7 @@ const orderToTableSchema = new Schema({
     required: false,
     unique: true,
   },
-  barName: { type: String },
+  barId: { type: String },
   date: { type: String },
   startTime: { type: Number },
   endTime: { type: Number },

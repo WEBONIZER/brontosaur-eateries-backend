@@ -26,7 +26,7 @@ interface IOrderToTable {
   guests: number;
   orderNumber: number;
   tableNumber: number;
-  barName: string;
+  barId: string;
   date: string;
   startTime: number;
   endTime: number;

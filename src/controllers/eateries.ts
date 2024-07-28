@@ -319,28 +319,55 @@ export const addOrderToTable = async (req: any, res: Response, next: NextFunctio
     const { eateriesRoute, tableNumber } = req.params;
     const newOrder = req.body;
 
-    // Поиск заведения по маршруту
+    console.log('Received request to add order:', { eateriesRoute, tableNumber, newOrder });
+
+    // Проверка параметров
+    if (!eateriesRoute || !tableNumber) {
+        console.log('Invalid parameters:', { eateriesRoute, tableNumber });
+        return res.status(400).json({ message: "Invalid eateriesRoute or tableNumber" });
+    }
+
+    const tableNumberInt = parseInt(tableNumber, 10);  // Преобразуем tableNumber в число
+
+    if (isNaN(tableNumberInt)) {
+        console.error('Invalid table number format:', tableNumber);
+        return res.status(400).json({ message: "Invalid table number format" });
+    }
+
     try {
         const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
 
         if (!eatery) {
+            console.error(`Eatery with route "${eateriesRoute}" not found`);
             return res.status(404).json({ message: `Eatery with route "${eateriesRoute}" not found` });
         }
 
-        // Найти конкретную таблицу по _id
-        const table = eatery.halls.flatMap((h: any) => h.tables).find((t: any) => t._id.toString() === tableNumber);
+        console.log('Found eatery:', eatery);
 
-        if (!table) {
-            return res.status(404).json({ message: `Table with _id "${tableNumber}" not found in eatery "${eateriesRoute}"` });
+        // Найдем конкретную таблицу по номеру стола во всех залах
+        let foundTable = null;
+        for (const hall of eatery.halls) {
+            const table = hall.tables.find((t: any) => t.number === tableNumberInt);
+            if (table) {
+                foundTable = table;
+                break;
+            }
         }
 
-        // Добавление нового заказа
-        table.orders.push(newOrder);
+        if (!foundTable) {
+            console.error(`Table with number "${tableNumber}" not found in eatery "${eateriesRoute}"`);
+            return res.status(404).json({ message: `Table with number "${tableNumber}" not found in eatery "${eateriesRoute}"` });
+        }
 
+        console.log('Found table:', foundTable);
+
+        foundTable.orders.push(newOrder);
         await eatery.save();
 
-        res.status(200).json({ message: 'Order added successfully' });
+        console.log('Order added successfully');
+        return res.status(200).json({ message: 'Order added successfully' });
     } catch (error) {
+        console.error(`Error adding order to table: ${error}`);
         next(error);
     }
 };
