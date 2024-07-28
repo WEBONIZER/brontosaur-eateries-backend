@@ -22,24 +22,14 @@ interface IPhotoToHall {
   alt: string;
 }
 
-interface IStartTime {
-  hours: number;
-  minutes: number;
-}
-
-interface IEndTime {
-  hours: number;
-  minutes: number;
-}
-
 interface IOrderToTable {
   guests: number;
   orderNumber: number;
   tableNumber: number;
   barName: string;
   date: string;
-  startTime: IStartTime;
-  endTime: IEndTime;
+  startTime: number;
+  endTime: number;
 }
 
 interface IGuestsToTable {

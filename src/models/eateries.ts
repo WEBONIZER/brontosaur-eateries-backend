@@ -19,28 +19,18 @@ const photoToHallSchema = new Schema({
   alt: { type: String },
 });
 
-const startTimeSchema = new Schema({
-  hours: { type: Number },
-  minutes: { type: Number },
-});
-
-const endTimeSchema = new Schema({
-  hours: { type: Number },
-  minutes: { type: Number },
-});
-
 const orderToTableSchema = new Schema({
   guests: { type: Number },
   tableNumber: { type: Number },
   orderNumber: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
   },
   barName: { type: String },
   date: { type: String },
-  startTime: { type: startTimeSchema },
-  endTime: { type: endTimeSchema },
+  startTime: { type: Number },
+  endTime: { type: Number },
 });
 
 const guestsToTableSchema = new Schema({
