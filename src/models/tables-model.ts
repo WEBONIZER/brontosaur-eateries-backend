@@ -3,7 +3,7 @@ import mongoose, { Schema, model, Document } from 'mongoose';
 const orderToTableSchema = new Schema({
     guests: { type: Number, required: true },
     tableNumber: { type: Number, required: true },
-    orderNumber: { type: Number, unique: true },
+    orderNumber: { type: Number, unique: false },
     barId: { type: String, required: true },
     date: { type: String, required: true },
     startTime: { type: Number, required: true },
@@ -38,7 +38,10 @@ interface ITable extends Document {
 const tableSchema = new Schema({
     number: { type: Number, required: true },
     photo: { type: String, required: true },
-    hallId: { type: String, required: true, index: true },
+    hallId: {
+        type: String, required: true,
+        index: true 
+    },
     places: { type: Number, required: true },
     chairs: { type: String, required: true },
     orders: { type: [orderToTableSchema], default: [] },
@@ -65,7 +68,7 @@ interface ITable extends Document {
 tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
 
 // Если orderNumber всегда уникален, используйте Sparse Index
-tableSchema.index({ 'orders.orderNumber': 1 }, { unique: true, sparse: true });
+//tableSchema.index({ 'orders.orderNumber': 1 }, { unique: true, sparse: true });
 
 const TableModel = mongoose.model<ITable>("Table", tableSchema);
 
