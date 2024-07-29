@@ -28,13 +28,19 @@ export const getAllEateries = async (req: RequestCustom, res: Response, next: Ne
 };
 
 export const getAllTables = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    try {
-        const allTables = await TableModel.find();
-        res.status(200).json(allTables);
-    } catch (error) {
-        console.error(error); // Логирование ошибки
-        next(error);
-    }
+    TableModel.find({})
+        .then((data) => {
+            if (!data.length) {
+                throw new NotFoundError('Не найдено ни одного заведения');
+            }
+            res.status(200).send({
+                status: 'success',
+                data,
+            });
+        })
+        .catch((error) => {
+            next(new Error('Произошла ошибка при получении заведений'));
+        });
 };
 
 export const getEateriesByName = (req: RequestCustom, res: Response, next: NextFunction) => {
