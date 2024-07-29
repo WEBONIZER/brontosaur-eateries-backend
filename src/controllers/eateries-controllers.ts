@@ -2,7 +2,7 @@ import {
     Response,
     NextFunction,
 } from 'express';
-import EateriesModel from '../models/eateries';
+import EateriesModel from '../models/eateries-model';
 import TableModel from '../models/tables-model'
 import { RequestCustom } from '../utils/types';
 import { NotFoundError } from '../utils/not-found-error-class'
@@ -25,22 +25,6 @@ export const getAllEateries = async (req: RequestCustom, res: Response, next: Ne
     } catch (error) {
         next(new Error('Произошла ошибка при получении заведений'));
     }
-};
-
-export const getAllTables = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    TableModel.find({})
-        .then((data) => {
-            if (!data.length) {
-                throw new NotFoundError('Не найдено ни одного заведения');
-            }
-            res.status(200).send({
-                status: 'success',
-                data,
-            });
-        })
-        .catch((error) => {
-            next(new Error('Произошла ошибка при получении заведений'));
-        });
 };
 
 export const getEateriesByName = (req: RequestCustom, res: Response, next: NextFunction) => {
@@ -262,7 +246,7 @@ export const removeHallFromEaterie = async (req: any, res: Response, next: NextF
         next(error);
     }
 };
- 
+
 export const addTableToHall = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute } = req.params;
     const newTableData = req.body;
@@ -281,7 +265,7 @@ export const addTableToHall = async (req: any, res: Response, next: NextFunction
 
         // Проверка данных стола перед сохранением
         console.log('New Table Data:', newTableData);
-        
+
         try {
             const newTable = new TableModel(newTableData);
             await newTable.save();

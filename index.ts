@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from "mongoose";
 import cors from "cors";
 import errorMdlwr from "./src/middlewares/error";
-import eateries from './src/routes/eateries';
+import eateries from './src/routes/eateries-routes';
+import tables from './src/routes/tables-routes';
 import fs from 'fs';
 import https from 'https';
 import 'dotenv/config';
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/eateries", eateries);
+app.use("/tables", tables);
 app.use("*", (req, res) => {
     res.status(404).json({ message: "Not Found" });
 });

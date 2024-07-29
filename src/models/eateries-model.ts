@@ -26,7 +26,7 @@ const hallSchema = new Schema({
   photos: { type: [photoToHallSchema] },
   tables: [{
     type: Schema.Types.ObjectId,
-    ref: 'Table',
+    ref: 'table',
   }],
 });
 
