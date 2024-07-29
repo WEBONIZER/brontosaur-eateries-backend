@@ -258,7 +258,7 @@ export const removeHallFromEaterie = async (req: any, res: Response, next: NextF
 };
  
 export const addTableToHall = async (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute, hallRoute } = req.params;
+    const { eateriesRoute } = req.params;
     const newTableData = req.body;
 
     try {
@@ -267,23 +267,32 @@ export const addTableToHall = async (req: any, res: Response, next: NextFunction
             return res.status(404).json({ message: `Eatery "${eateriesRoute}" not found` });
         }
 
-        const hall = eatery.halls.find((hall) => hall.hallRoute === hallRoute);
-        if (!hall) {
-            return res.status(404).json({ message: `Hall "${hallRoute}" not found in eatery "${eateriesRoute}"` });
+        // Проверка существования зала по hallId
+        const hallExists = eatery.halls.some((hall: any) => hall._id.toString() === newTableData.hallId);
+        if (!hallExists) {
+            return res.status(404).json({ message: `Hall with id "${newTableData.hallId}" not found in eatery "${eateriesRoute}"` });
         }
 
         // Проверка данных стола перед сохранением
         console.log('New Table Data:', newTableData);
         
-        const newTable: any = new TableModel(newTableData);
-        newTable.save();
+        try {
+            const newTable = new TableModel(newTableData);
+            await newTable.save();
 
-        console.log('Стол сохранился');
+            console.log('Стол сохранился');
 
-        hall.tables.push(newTable._id); // Добавление _id стола к массиву tables зала
-        await eatery.save();
+            const hall: any = eatery.halls.find((hall: any) => hall._id.toString() === newTableData.hallId);
+            hall.tables.push(newTable._id); // Добавление _id стола к массиву tables зала
+            await eatery.save();
 
-        res.status(200).json({ message: 'Table successfully added to hall' });
+            res.status(200).json({ message: 'Table successfully added to hall', table: newTable });
+        } catch (error: any) {
+            if (error.code === 11000) {
+                return res.status(400).json({ message: 'Table with this number already exists in the hall' });
+            }
+            throw error; // Если ошибка не связана с дублированием, пробросим дальше для обработки
+        }
     } catch (error) {
         next(error);
     }
