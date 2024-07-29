@@ -31,7 +31,7 @@ eateries.post('/:eateriesRoute/halls', addHallToEaterie);
 eateries.delete('/:eateriesRoute/halls/:hallRoute', removeHallFromEaterie); // Удалить зал по имени
 
 eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
-eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber', removeTableFromHall);
+eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableId', removeTableFromHall);
 
 eateries.post('/:eateriesRoute/tables/:tableNumber/orders', addOrderToTable);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);

@@ -24,7 +24,7 @@ const orderToTableSchema = new Schema<IOrderToTable>({
 // Типизация для основной модели Table
 interface ITable extends Document {
     number: number;
-    hallId: mongoose.Types.ObjectId;
+    hallId: string;
     photo?: string;
     places: number;
     chairs: string;
@@ -37,23 +37,29 @@ interface ITable extends Document {
 
 // Основная схема для Table
 const tableSchema = new Schema<ITable>({
-    number: { type: Number, required: true, unique: true },
-    hallId: { type: Schema.Types.ObjectId, ref: 'Hall', required: true },
-    photo: { type: String },
+    number: { type: Number, required: true },
+    photo: { type: String, required: true },
+    hallId: { type: String, required: true, index: true },
     places: { type: Number, required: true },
     chairs: { type: String, required: true },
-    orders: [orderToTableSchema],
-    guests: {
-        min: { type: Number, required: true },
-        max: { type: Number, required: true },
+    orders: { 
+      type: [new Schema({
+        orderNumber: { type: Number, required: true }  // orderNumber должен быть уникален
+      })], 
+      default: [] 
     },
-});
-
-
-
-// Создание и экспорт модели
-const TableModel = model<ITable>('Table', tableSchema);
-
-
-
-export default TableModel;
+    guests: {
+      min: { type: Number, required: true },
+      max: { type: Number, required: true }
+    }
+  });
+  
+  // Создайте уникальный индекс для комбинации hallId и number
+  tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
+  
+  // Если `orderNumber` всегда уникален, используйте Sparse Index
+  tableSchema.index({ 'orders.orderNumber': 1 }, { unique: true, sparse: true });
+  
+  const TableModel = mongoose.model<ITable>("Table", tableSchema);
+  
+  export default TableModel;

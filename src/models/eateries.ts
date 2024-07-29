@@ -19,11 +19,6 @@ const photoToHallSchema = new Schema({
   alt: { type: String },
 });
 
-const guestsToTableSchema = new Schema({
-  min: { type: Number },
-  max: { type: Number },
-});
-
 const hallSchema = new Schema({
   hallRoute: { type: String },
   name: { type: String },

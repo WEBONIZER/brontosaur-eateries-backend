@@ -256,7 +256,7 @@ export const removeHallFromEaterie = async (req: any, res: Response, next: NextF
         next(error);
     }
 };
-
+ 
 export const addTableToHall = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, hallRoute } = req.params;
     const newTableData = req.body;
@@ -276,7 +276,9 @@ export const addTableToHall = async (req: any, res: Response, next: NextFunction
         console.log('New Table Data:', newTableData);
         
         const newTable: any = new TableModel(newTableData);
-        await newTable.save();
+        newTable.save();
+
+        console.log('Стол сохранился');
 
         hall.tables.push(newTable._id); // Добавление _id стола к массиву tables зала
         await eatery.save();
@@ -288,7 +290,7 @@ export const addTableToHall = async (req: any, res: Response, next: NextFunction
 };
 
 export const removeTableFromHall = async (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute, hallRoute, tableNumber } = req.params;
+    const { eateriesRoute, hallRoute, tableId } = req.params;
 
     try {
         const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
@@ -301,13 +303,13 @@ export const removeTableFromHall = async (req: any, res: Response, next: NextFun
             return res.status(404).json({ message: `Hall "${hallRoute}" not found in eatery "${eateriesRoute}"` });
         }
 
-        const table: any = await TableModel.findOne({ number: parseInt(tableNumber, 10), hallId: hall._id });
+        const table: any = await TableModel.findById(tableId);
         if (!table) {
-            return res.status(404).json({ message: `Table number "${tableNumber}" not found in hall "${hallRoute}"` });
+            return res.status(404).json({ message: `Table with ID "${tableId}" not found in hall "${hallRoute}"` });
         }
 
-        hall.tables = hall.tables.filter((tableId: any) => tableId.toString() !== table._id.toString());
-        await table.remove();
+        hall.tables = hall.tables.filter((currentTableId: any) => currentTableId.toString() !== tableId);
+        await TableModel.deleteOne({ _id: tableId });
         await eatery.save();
 
         res.status(200).json({ message: 'Table successfully removed from hall' });
