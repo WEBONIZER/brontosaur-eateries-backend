@@ -48,3 +48,23 @@ export const getTableById = (req: RequestCustom, res: Response, next: NextFuncti
             }
         });
 };
+
+export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { tableId } = req.params;
+    const order = req.body;
+
+    try {
+        const table: any = await TableModel.findById(tableId);
+
+        if (!table) {
+            return res.status(404).json({ message: 'Table not found' });
+        }
+        
+        table.orders.push(order);
+        await table.save();
+        return res.status(201).json({ message: 'Order added successfully', table });
+    } catch (error: any) {
+        console.error('Error occurred:', error.message);
+        next(error);
+    }
+};

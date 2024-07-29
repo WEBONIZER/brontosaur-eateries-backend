@@ -317,35 +317,6 @@ export const removeTableFromHall = async (req: any, res: Response, next: NextFun
     }
 };
 
-export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    const { tableId } = req.params;
-    const order = req.body;
-
-    console.log(`Received order: ${JSON.stringify(order)} for table: ${tableId}`);
-
-    try {
-        // Найти стол по _id
-        const table: any = await TableModel.findOne({ _id: tableId }).exec();
-
-        console.log(`Found table: ${JSON.stringify(table)}`);
-
-        if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
-        }
-
-        // Добавить новый заказ в массив orders
-        table.orders.push(order);
-
-        // Сохранить изменения
-        await table.save();
-
-        return res.status(201).json({ message: 'Order added successfully', table });
-    } catch (error: any) {
-        console.error(`Error occurred: ${error.message}`);
-        next(error);
-    }
-};
-
 export const removeOrderFromTable = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, hallRoute, tableNumber, orderNumber } = req.params;
 

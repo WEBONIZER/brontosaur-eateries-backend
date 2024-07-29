@@ -57,7 +57,7 @@ const tableSchema = new Schema<ITable>({
 
 
 // Создайте уникальный индекс для комбинации hallId и number
-//tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
+tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
 
 // Если orderNumber всегда уникален, используйте Sparse Index
 //tableSchema.index({ 'orders.orderNumber': 1 }, { unique: true, sparse: true });

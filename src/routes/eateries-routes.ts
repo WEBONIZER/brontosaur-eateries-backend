@@ -10,7 +10,6 @@ import {
     removeHallFromEaterie,
     addTableToHall,
     removeTableFromHall,
-    addOrderToTable,
     removeOrderFromTable,
     updateOrderInTable,
     addViewsToEaterie
@@ -32,7 +31,6 @@ eateries.delete('/:eateriesRoute/halls/:hallRoute', removeHallFromEaterie); // Ð
 eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableId', removeTableFromHall);
 
-eateries.post('/tables/:tableId/orders', addOrderToTable);
 eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);
 eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', updateOrderInTable);
 
