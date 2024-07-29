@@ -3,24 +3,38 @@ import {
     NextFunction,
 } from 'express';
 import EateriesModel from '../models/eateries';
+import TableModel from '../models/tables-model'
 import { RequestCustom } from '../utils/types';
 import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
 
-export const getAllEateries = (req: RequestCustom, res: Response, next: NextFunction) => {
-    EateriesModel.find({})
-        .then((data) => {
-            if (!data.length) {
-                throw new NotFoundError('Не найдено ни одного заведения');
-            }
-            res.status(200).send({
-                status: 'success',
-                data,
-            });
-        })
-        .catch((error) => {
-            next(new Error('Произошла ошибка при получении заведений'));
+export const getAllEateries = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    try {
+        const eateries = await EateriesModel.find({}).populate({
+            path: 'halls.tables'
         });
+
+        if (!eateries.length) {
+            throw new NotFoundError('Не найдено ни одного заведения');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            data: eateries,
+        });
+    } catch (error) {
+        next(new Error('Произошла ошибка при получении заведений'));
+    }
+};
+
+export const getAllTables = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    try {
+        const allTables = await TableModel.find();
+        res.status(200).json(allTables);
+    } catch (error) {
+        console.error(error); // Логирование ошибки
+        next(error);
+    }
 };
 
 export const getEateriesByName = (req: RequestCustom, res: Response, next: NextFunction) => {
@@ -245,35 +259,30 @@ export const removeHallFromEaterie = async (req: any, res: Response, next: NextF
 
 export const addTableToHall = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, hallRoute } = req.params;
-    const newTable: any = req.body;
-
-    if (!eateriesRoute || !hallRoute) {
-        return res.status(400).json({ message: 'Both eateriesRoute and hallRoute params are required' });
-    }
-
-    if (!newTable) {
-        return res.status(400).json({ message: 'Table data is required' });
-    }
+    const newTableData = req.body;
 
     try {
         const eatery = await EateriesModel.findOne({ route: eateriesRoute });
         if (!eatery) {
-            console.log(`Eatery not found: ${eateriesRoute}`);
             return res.status(404).json({ message: `Eatery "${eateriesRoute}" not found` });
         }
 
-        const hall = eatery.halls.find((hall: any) => hall.hallRoute === hallRoute);
+        const hall = eatery.halls.find((hall) => hall.hallRoute === hallRoute);
         if (!hall) {
-            console.log(`Hall not found: ${hallRoute}`);
             return res.status(404).json({ message: `Hall "${hallRoute}" not found in eatery "${eateriesRoute}"` });
         }
 
-        hall.tables.push(newTable);
+        // Проверка данных стола перед сохранением
+        console.log('New Table Data:', newTableData);
+        
+        const newTable: any = new TableModel(newTableData);
+        await newTable.save();
+
+        hall.tables.push(newTable._id); // Добавление _id стола к массиву tables зала
         await eatery.save();
 
-        res.status(200).json(eatery);
-    } catch (error: any) {
-        console.error(`Error adding table to hall: ${error.message}`);
+        res.status(200).json({ message: 'Table successfully added to hall' });
+    } catch (error) {
         next(error);
     }
 };
@@ -281,36 +290,28 @@ export const addTableToHall = async (req: any, res: Response, next: NextFunction
 export const removeTableFromHall = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, hallRoute, tableNumber } = req.params;
 
-    if (!eateriesRoute || !hallRoute || !tableNumber) {
-        return res.status(400).json({ message: 'Eateries route, hall route, and table number params are required' });
-    }
-
     try {
-        const eatery = await EateriesModel.findOne({ route: eateriesRoute });
+        const eatery: any = await EateriesModel.findOne({ route: eateriesRoute });
         if (!eatery) {
-            console.log(`Eatery not found: ${eateriesRoute}`);
             return res.status(404).json({ message: `Eatery "${eateriesRoute}" not found` });
         }
 
-        const hall = eatery.halls.find((hall: any) => hall.hallRoute === hallRoute);
+        const hall: any = eatery.halls.find((hall: any) => hall.hallRoute === hallRoute);
         if (!hall) {
-            console.log(`Hall not found: ${hallRoute}`);
             return res.status(404).json({ message: `Hall "${hallRoute}" not found in eatery "${eateriesRoute}"` });
         }
 
-        const tableIndex = hall.tables.findIndex((table: any) => table.number === parseInt(tableNumber, 10));
-
-        if (tableIndex === -1) {
-            console.log(`Table not found: ${tableNumber}`);
+        const table: any = await TableModel.findOne({ number: parseInt(tableNumber, 10), hallId: hall._id });
+        if (!table) {
             return res.status(404).json({ message: `Table number "${tableNumber}" not found in hall "${hallRoute}"` });
         }
 
-        hall.tables.splice(tableIndex, 1);
+        hall.tables = hall.tables.filter((tableId: any) => tableId.toString() !== table._id.toString());
+        await table.remove();
         await eatery.save();
 
-        res.status(200).json(eatery);
-    } catch (error: any) {
-        console.error(`Error removing table from hall: ${error.message}`);
+        res.status(200).json({ message: 'Table successfully removed from hall' });
+    } catch (error) {
         next(error);
     }
 };

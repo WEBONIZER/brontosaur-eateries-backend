@@ -37,7 +37,7 @@ interface IGuestsToTable {
   max: number;
 }
 
-interface ITable {
+export interface ITable {
   number: number;
   orders: IOrderToTable[];
   photo: string;

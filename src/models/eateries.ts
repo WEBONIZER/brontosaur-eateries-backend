@@ -19,36 +19,9 @@ const photoToHallSchema = new Schema({
   alt: { type: String },
 });
 
-const orderToTableSchema = new Schema({
-  guests: { type: Number },
-  tableNumber: { type: Number },
-  orderNumber: {
-    type: Number,
-    required: false,
-    unique: true,
-  },
-  barId: { type: String },
-  date: { type: String },
-  startTime: { type: Number },
-  endTime: { type: Number },
-});
-
 const guestsToTableSchema = new Schema({
   min: { type: Number },
   max: { type: Number },
-});
-
-const tableToHallSchema = new Schema({
-  number: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-  photo: { type: String },
-  places: { type: Number },
-  chairs: { type: String },
-  orders: { type: [orderToTableSchema] },
-  guests: { type: guestsToTableSchema },
 });
 
 const hallSchema = new Schema({
@@ -56,7 +29,10 @@ const hallSchema = new Schema({
   name: { type: String },
   video: { type: String },
   photos: { type: [photoToHallSchema] },
-  tables: { type: [tableToHallSchema] },
+  tables: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Table',
+  }],
 });
 
 const coordinatesSchema = new Schema({
