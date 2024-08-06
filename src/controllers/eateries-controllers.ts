@@ -51,6 +51,52 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
         });
 };
 
+export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { city } = req.body;
+
+    console.log(`Received city: ${city}`); // Для отладки
+
+    if (!city) {
+        return next(new BadRequestError('Поле "city" обязательно для заполнения'));
+    }
+
+    EateriesModel.find({ city })
+        .then((eateries) => {
+            if (!eateries.length) {
+                throw new NotFoundError(`Заведения в городе ${city} не найдены`);
+            }
+
+            res.status(200).send({
+                status: 'success',
+                data: eateries,
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректное название города'));
+            } else {
+                next(new Error('Произошла ошибка при получении данных заведения'));
+            }
+        });
+};
+
+export const getAllUniqueCities = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    try {
+        const cities = await EateriesModel.distinct('city'); // Этот метод вернет уникальные значения
+
+        if (!cities.length) {
+            throw new NotFoundError('Не найдено ни одного города');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            data: cities,
+        });
+    } catch (error) {
+        next(new Error('Произошла ошибка при получении данных о городах'));
+    }
+};
+
 export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
     const {
         name,

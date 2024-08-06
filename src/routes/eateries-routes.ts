@@ -12,12 +12,16 @@ import {
     removeTableFromHall,
     removeOrderFromTable,
     updateOrderInTable,
-    addViewsToEaterie
+    addViewsToEaterie,
+    getEateriesByCity,
+    getAllUniqueCities,
 } from '../controllers/eateries-controllers';
 
 const eateries = Router();
 
 eateries.get('/', getAllEateries);
+eateries.post('/by-city', getEateriesByCity);
+eateries.get('/unique-cities', getAllUniqueCities);
 eateries.post('/', postOneEaterie);
 eateries.delete('/:eateriesRoute', removeEaterie)
 eateries.get('/:eateriesRoute', getEateriesByName);
