@@ -60,10 +60,15 @@ export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextF
         return next(new BadRequestError('Поле "city" обязательно для заполнения'));
     }
 
-    EateriesModel.find({ city })
+    EateriesModel.find({ city }).populate({
+        path: 'halls.tables'
+    })
         .then((eateries) => {
             if (!eateries.length) {
-                throw new NotFoundError(`Заведения в городе ${city} не найдены`);
+                res.status(200).send({
+                    status: 'success',
+                    data: [],
+                });
             }
 
             res.status(200).send({
