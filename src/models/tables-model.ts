@@ -9,10 +9,10 @@ interface IOrderToTable {
     tableNumber: number;
     orderNumber?: number;
     barId: string;
-    date: string;
+    date: string; // Дата, приходящая с фронтенда
     startTime: number;
     endTime: number;
-    createdAt?: Date;
+    deleteAt?: Date; // Поле для TTL индекса
 }
 
 const orderToTableSchema = new Schema<IOrderToTable>({
@@ -23,7 +23,15 @@ const orderToTableSchema = new Schema<IOrderToTable>({
     date: { type: String, required: true },
     startTime: { type: Number, required: true },
     endTime: { type: Number, required: true },
-    createdAt: { type: Date, default: Date.now, index: { expires: '60' } }
+    deleteAt: { type: Date, required: true, index: { expires: '1d' } } // Поле для TTL индекса, время жизни 1 день
+});
+
+// Прежде чем сохранить документ, добавляем поле deleteAt
+orderToTableSchema.pre('save', function (next) {
+    const order = this as any;
+    const date = new Date(order.date);
+    order.deleteAt = new Date(date.getTime() + 24 * 60 * 60 * 1000); // Добавляем 24 часа (1 день)
+    next();
 });
 
 // Схема для столика
