@@ -59,7 +59,11 @@ export const addOrderToTable = async (req: RequestCustom, res: Response, next: N
         if (!table) {
             return res.status(404).json({ message: 'Table not found' });
         }
-        
+
+        // Устанавливаем поле deleteAt для нового заказа
+        const orderDate = new Date(order.date);
+        order.deleteAt = new Date(orderDate.getTime() + 24 * 60 * 60 * 1000); // Добавляем 24 часа (1 день)
+
         table.orders.push(order);
         await table.save();
         return res.status(201).json({ message: 'Order added successfully', table });
