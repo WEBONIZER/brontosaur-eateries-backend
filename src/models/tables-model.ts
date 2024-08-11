@@ -1,8 +1,9 @@
 import {
     Schema,
     model,
-  } from 'mongoose';
-  
+} from 'mongoose';
+
+// Схема для заказа
 interface IOrderToTable {
     guests: number;
     tableNumber: number;
@@ -11,6 +12,7 @@ interface IOrderToTable {
     date: string;
     startTime: number;
     endTime: number;
+    createdAt?: Date;
 }
 
 const orderToTableSchema = new Schema<IOrderToTable>({
@@ -21,9 +23,10 @@ const orderToTableSchema = new Schema<IOrderToTable>({
     date: { type: String, required: true },
     startTime: { type: Number, required: true },
     endTime: { type: Number, required: true },
+    createdAt: { type: Date, default: Date.now, index: { expires: '60' } }
 });
 
-
+// Схема для столика
 interface ITable {
     number: number;
     hallId: string;
@@ -37,14 +40,10 @@ interface ITable {
     };
 }
 
-// Основная схема для Table
 const tableSchema = new Schema<ITable>({
     number: { type: Number, required: true },
     photo: { type: String, required: true },
-    hallId: {
-        type: String, required: true,
-        //index: true 
-    },
+    hallId: { type: String, required: true },
     places: { type: Number, required: true },
     chairs: { type: String, required: true },
     orders: { type: [orderToTableSchema], default: [] },
@@ -54,13 +53,7 @@ const tableSchema = new Schema<ITable>({
     }
 });
 
-
-
-// Создайте уникальный индекс для комбинации hallId и number
 tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
-
-// Если orderNumber всегда уникален, используйте Sparse Index
-//tableSchema.index({ 'orders.orderNumber': 1 }, { unique: true, sparse: true });
 
 const TableModel = model<ITable>("table", tableSchema);
 
