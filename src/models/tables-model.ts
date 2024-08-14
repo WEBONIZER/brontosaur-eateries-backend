@@ -9,29 +9,34 @@ interface IOrderToTable {
     tableNumber: number;
     orderNumber?: number;
     barId: string;
-    date: string; // Дата, приходящая с фронтенда
+    date: string;
     startTime: number;
     endTime: number;
-    deleteAt?: Date; // Поле для TTL индекса
+    deleteAt?: Date;
 }
 
 const orderToTableSchema = new Schema<IOrderToTable>({
     guests: { type: Number, required: true },
     tableNumber: { type: Number, required: true },
-    orderNumber: { type: Number, unique: false },
+    orderNumber: { type: Number },
     barId: { type: String, required: true },
     date: { type: String, required: true },
     startTime: { type: Number, required: true },
     endTime: { type: Number, required: true },
-    deleteAt: { type: Date, required: true, index: { expires: '1d' } } // Поле для TTL индекса, время жизни 1 день
+    deleteAt: { type: Date, required: true, index: { expires: '1d' } }
 });
 
 // Прежде чем сохранить документ, добавляем поле deleteAt
 orderToTableSchema.pre('save', function (next) {
     const order = this as any;
     const date = new Date(order.date);
-    order.deleteAt = new Date(date.getTime() + 24 * 60 * 60 * 1000); // Добавляем 24 часа (1 день)
-    next();
+
+    if (isNaN(date.getTime())) {
+        next(new Error('Invalid date format'));
+    } else {
+        order.deleteAt = new Date(date.getTime() + 24 * 60 * 60 * 1000);
+        next();
+    }
 });
 
 // Схема для столика

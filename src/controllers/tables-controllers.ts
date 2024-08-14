@@ -49,9 +49,21 @@ export const getTableById = (req: RequestCustom, res: Response, next: NextFuncti
         });
 };
 
-export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
+interface RequestOrderCustom extends Request {
+        guests: number;
+        tableNumber: number;
+        orderNumber?: number;
+        barId: string;
+        date: string; // Дата в формате строки
+        startTime: number;
+        endTime: number;
+}
+
+export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
     const { tableId } = req.params;
     const order = req.body;
+
+    console.log('Received order:', order);
 
     try {
         const table: any = await TableModel.findById(tableId);
@@ -60,9 +72,19 @@ export const addOrderToTable = async (req: RequestCustom, res: Response, next: N
             return res.status(404).json({ message: 'Table not found' });
         }
 
-        // Устанавливаем поле deleteAt для нового заказа
+        // Проверка формата входной даты и преобразование её
         const orderDate = new Date(order.date);
+        if (isNaN(orderDate.getTime())) {
+            return res.status(400).json({ message: 'Invalid date format' });
+        }
+
+        // Устанавливаем поле deleteAt для нового заказа
         order.deleteAt = new Date(orderDate.getTime() + 24 * 60 * 60 * 1000); // Добавляем 24 часа (1 день)
+
+        // Добавляем проверку на корректность установленного времени
+        if (isNaN(order.deleteAt.getTime())) {
+            return res.status(400).json({ message: 'Invalid deleteAt date' });
+        }
 
         table.orders.push(order);
         await table.save();
