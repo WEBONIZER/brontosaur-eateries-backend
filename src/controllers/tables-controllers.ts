@@ -59,7 +59,7 @@ interface RequestOrderCustom extends Request {
         endTime: number;
 }
 
-export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
+export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
     const { tableId } = req.params;
     const order = req.body;
 

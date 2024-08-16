@@ -70,4 +70,20 @@ tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
 
 const TableModel = model<ITable>("table", tableSchema);
 
+// Фоновая задача для удаления просроченных заказов
+const removeExpiredOrders = async () => {
+    const tables: any = await TableModel.find({});
+    const now = new Date();
+
+    for (const table of tables) {
+        table.orders = table.orders.filter((order: any) => order.deleteAt > now);
+        await table.save();
+    }
+
+    console.log('Expired orders removed at:', new Date());
+};
+
+// Запуск фоновой задачи каждые 5 часов
+setInterval(removeExpiredOrders, 5 * 60 * 60 * 1000); // 5 минут
+
 export default TableModel;
