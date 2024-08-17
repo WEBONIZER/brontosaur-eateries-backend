@@ -140,6 +140,11 @@ const eateriesSchema = new Schema<IEateries>({
   tagKeywords: {
     type: String,
     required: false,
+  },
+  eateriesAdminArr: {
+    type: [String],
+    required: true,
+    default: [],
   }
 });
 
