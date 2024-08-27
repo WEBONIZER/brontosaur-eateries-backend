@@ -129,7 +129,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         halls,
         tagTitle,
         tagKeywords,
-        eateriesAdminPhone
+        eateriesAdminId
     } = req.body;
     EateriesModel.create({
         name,
@@ -157,7 +157,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         halls,
         tagTitle,
         tagKeywords,
-        eateriesAdminPhone
+        eateriesAdminId
     })
         .then((data) => res.status(201).send({
             status: 'success',

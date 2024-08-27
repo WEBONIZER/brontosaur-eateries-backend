@@ -85,5 +85,5 @@ export interface IEateries {
   halls: IHall[];
   tagTitle: string;
   tagKeywords: string;
-  eateriesAdminPhone: string;
+  eateriesAdminId: string;
 }

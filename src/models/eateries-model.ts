@@ -141,7 +141,7 @@ const eateriesSchema = new Schema<IEateries>({
     type: String,
     required: false,
   },
-  eateriesAdminPhone: {
+  eateriesAdminId: {
     type: String,
     required: true,
     default: '',
