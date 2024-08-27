@@ -30,6 +30,9 @@ interface IOrderToTable {
   date: string;
   startTime: number;
   endTime: number;
+  active: boolean;
+  confirmation: boolean;
+  payment: boolean;
 }
 
 interface IGuestsToTable {
