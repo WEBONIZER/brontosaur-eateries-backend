@@ -141,10 +141,10 @@ const eateriesSchema = new Schema<IEateries>({
     type: String,
     required: false,
   },
-  eateriesAdminArr: {
-    type: [String],
+  eateriesAdminPhone: {
+    type: String,
     required: true,
-    default: [],
+    default: '',
   }
 });
 
