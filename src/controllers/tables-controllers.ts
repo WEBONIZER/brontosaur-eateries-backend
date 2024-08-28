@@ -49,16 +49,6 @@ export const getTableById = (req: RequestCustom, res: Response, next: NextFuncti
         });
 };
 
-interface RequestOrderCustom extends Request {
-        guests: number;
-        tableNumber: number;
-        orderNumber?: number;
-        barId: string;
-        date: string; // Дата в формате строки
-        startTime: number;
-        endTime: number;
-}
-
 export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
     const { tableId } = req.params;
     const order = req.body;
@@ -89,6 +79,33 @@ export const addOrderToTable = async (req: RequestCustom, res: Response, next: N
         table.orders.push(order);
         await table.save();
         return res.status(201).json({ message: 'Order added successfully', table });
+    } catch (error: any) {
+        console.error('Error occurred:', error.message);
+        next(error);
+    }
+};
+
+export const removeOrderFromTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { tableId, orderId } = req.params;
+
+    try {
+        const table: any = await TableModel.findById(tableId);
+
+        if (!table) {
+            return res.status(404).json({ message: 'Table not found' });
+        }
+
+        // Ищем заказ по orderId и удаляем его
+        const orderIndex = table.orders.findIndex((order: any) => order._id.toString() === orderId);
+
+        if (orderIndex === -1) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        table.orders.splice(orderIndex, 1);
+        await table.save();
+
+        return res.status(200).json({ message: 'Order removed successfully', table });
     } catch (error: any) {
         console.error('Error occurred:', error.message);
         next(error);
