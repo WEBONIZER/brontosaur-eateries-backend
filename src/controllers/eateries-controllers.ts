@@ -51,6 +51,33 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
         });
 };
 
+export const getEateriesById = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const eateryId = req.params.id;
+  
+    EateriesModel.findById(eateryId)
+      .populate({
+        path: 'halls.tables',
+      })
+      .then((foundEatery) => {
+        if (!foundEatery) {
+          throw new NotFoundError('Заведение не найдено');
+        }
+  
+        res.status(200).send({
+          status: 'success',
+          data: foundEatery,
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching eatery by ID:', error);
+        if (error.name === 'CastError') {
+          next(new BadRequestError('Некорректный идентификатор заведения'));
+        } else {
+          next(new Error('Произошла ошибка при получении данных заведения'));
+        }
+      });
+  };
+
 export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
     const { city } = req.body;
 

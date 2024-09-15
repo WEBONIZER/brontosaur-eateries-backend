@@ -15,6 +15,7 @@ import {
     addViewsToEaterie,
     getEateriesByCity,
     getAllUniqueCities,
+    getEateriesById,
 } from '../controllers/eateries-controllers';
 
 const eateries = Router();
@@ -25,6 +26,7 @@ eateries.get('/unique-cities', getAllUniqueCities);
 eateries.post('/', postOneEaterie);
 eateries.delete('/:eateriesRoute', removeEaterie)
 eateries.get('/:eateriesRoute', getEateriesByName);
+eateries.get('/get-eaterie/:id', getEateriesById);
 eateries.patch('/:eateriesRoute/like', addLikeToEaterie);
 eateries.delete('/:eateriesRoute/like', removeLikeFromEaterie);
 
