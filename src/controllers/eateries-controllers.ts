@@ -78,7 +78,7 @@ export const getEateriesById = (req: RequestCustom, res: Response, next: NextFun
       });
   };
 
-export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
+  export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
     const { city } = req.body;
 
     console.log(`Received city: ${city}`); // Для отладки
@@ -87,12 +87,14 @@ export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextF
         return next(new BadRequestError('Поле "city" обязательно для заполнения'));
     }
 
-    EateriesModel.find({ city }).populate({
+    const decodedCity = decodeURIComponent(city); // Декодирование значения города
+
+    EateriesModel.find({ city: decodedCity }).populate({
         path: 'halls.tables'
     })
         .then((eateries) => {
             if (!eateries.length) {
-                res.status(200).send({
+                return res.status(200).send({
                     status: 'success',
                     data: [],
                 });
