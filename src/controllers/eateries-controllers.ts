@@ -520,3 +520,69 @@ export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextF
             }
         });
 };
+
+export const addDisabledDatesToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const eateriesRoute = req.params.eateriesRoute;
+    const { dates } = req.body;
+
+    if (!dates || !Array.isArray(dates) || !dates.every(date => typeof date === 'string')) {
+        return next(new BadRequestError('Некорректные данные для дат'));
+    }
+
+    EateriesModel.findOneAndUpdate(
+        { route: eateriesRoute },
+        { $addToSet: { disabledDates: { $each: dates } } }, // Use $each to add multiple dates
+        { new: true }
+    )
+    .then((updatedEaterie) => {
+        if (!updatedEaterie) {
+            throw new NotFoundError('Заведение не найдено');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            data: updatedEaterie,
+        });
+    })
+    .catch((error) => {
+        if (error.name === 'CastError') {
+            next(new BadRequestError('Некорректный идентификатор заведения'));
+        } else {
+            next(new Error('Произошла ошибка при обновлении дат'));
+        }
+    });
+};
+
+export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+    const eateriesRoute = req.params.eateriesRoute;
+    const { dates } = req.body;
+
+    // Проверка входных данных
+    if (!dates || !Array.isArray(dates) || !dates.every(date => typeof date === 'string')) {
+        return next(new BadRequestError('Некорректные данные для дат'));
+    }
+
+    // Обновление документа в базе данных
+    EateriesModel.findOneAndUpdate(
+        { route: eateriesRoute },
+        { $pull: { disabledDates: { $in: dates } } }, // Удаление дат из массива disabledDates
+        { new: true }
+    )
+    .then((updatedEaterie) => {
+        if (!updatedEaterie) {
+            throw new NotFoundError('Заведение не найдено');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            data: updatedEaterie,
+        });
+    })
+    .catch((error) => {
+        if (error.name === 'CastError') {
+            next(new BadRequestError('Некорректный идентификатор заведения'));
+        } else {
+            next(new Error('Произошла ошибка при удалении дат'));
+        }
+    });
+};

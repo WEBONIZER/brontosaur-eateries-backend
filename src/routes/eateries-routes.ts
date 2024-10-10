@@ -16,6 +16,8 @@ import {
     getEateriesByCity,
     getAllUniqueCities,
     getEateriesById,
+    addDisabledDatesToEaterie,
+    removeDisabledDatesFromEaterie,
 } from '../controllers/eateries-controllers';
 
 const eateries = Router();
@@ -41,5 +43,8 @@ eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:or
 eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', updateOrderInTable);
 
 eateries.patch('/:eateriesRoute/views', addViewsToEaterie);
+
+eateries.post('/:eateriesRoute/disabled-dates', addDisabledDatesToEaterie);
+eateries.delete('/:eateriesRoute/disabled-dates', removeDisabledDatesFromEaterie);
 
 export default eateries; 
