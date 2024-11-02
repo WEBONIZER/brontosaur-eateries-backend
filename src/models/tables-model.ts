@@ -53,6 +53,7 @@ interface ITable {
     places: number;
     chairs: string;
     orders?: IOrderToTable[];
+    blocked: boolean;
     guests: {
         min: number;
         max: number;
@@ -66,6 +67,7 @@ const tableSchema = new Schema<ITable>({
     places: { type: Number, required: true },
     chairs: { type: String, required: true },
     orders: { type: [orderToTableSchema], default: [] },
+    blocked: { type: Boolean, required: true, default: false },
     guests: {
         min: { type: Number, required: true },
         max: { type: Number, required: true },
