@@ -111,3 +111,23 @@ export const removeOrderFromTable = async (req: RequestCustom, res: Response, ne
         next(error);
     }
 };
+
+export const updateTableBlocked = async (req: RequestCustom, res: Response) => {
+    const { tableId } = req.params;
+    const { blocked } = req.body;
+
+    try {
+        const table = await TableModel.findById(tableId);
+
+        if (!table) {
+            return res.status(404).json({ message: 'Table not found' });
+        }
+
+        table.blocked = blocked;
+        await table.save();
+
+        res.status(200).json({ message: 'Table status updated', table });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating table status', error });
+    }
+};
