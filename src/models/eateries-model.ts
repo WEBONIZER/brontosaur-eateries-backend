@@ -45,6 +45,7 @@ const coordinatesSchema = new Schema({
 
 const eateriesSchema = new Schema<IEaterieDocument>({
   name: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
   title: { type: String, required: true },
   deposit: { type: Number, required: true },
   description: { type: String, required: true },

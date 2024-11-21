@@ -89,4 +89,5 @@ export interface IEateries {
   tagTitle: string;
   tagKeywords: string;
   eateriesAdminId: string;
+  email: string;
 }

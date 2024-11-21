@@ -53,32 +53,32 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
 
 export const getEateriesById = (req: RequestCustom, res: Response, next: NextFunction) => {
     const eateryId = req.params.id;
-  
-    EateriesModel.findById(eateryId)
-      .populate({
-        path: 'halls.tables',
-      })
-      .then((foundEatery) => {
-        if (!foundEatery) {
-          throw new NotFoundError('Заведение не найдено');
-        }
-  
-        res.status(200).send({
-          status: 'success',
-          data: foundEatery,
-        });
-      })
-      .catch((error) => {
-        console.error('Error fetching eatery by ID:', error);
-        if (error.name === 'CastError') {
-          next(new BadRequestError('Некорректный идентификатор заведения'));
-        } else {
-          next(new Error('Произошла ошибка при получении данных заведения'));
-        }
-      });
-  };
 
-  export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
+    EateriesModel.findById(eateryId)
+        .populate({
+            path: 'halls.tables',
+        })
+        .then((foundEatery) => {
+            if (!foundEatery) {
+                throw new NotFoundError('Заведение не найдено');
+            }
+
+            res.status(200).send({
+                status: 'success',
+                data: foundEatery,
+            });
+        })
+        .catch((error) => {
+            console.error('Error fetching eatery by ID:', error);
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректный идентификатор заведения'));
+            } else {
+                next(new Error('Произошла ошибка при получении данных заведения'));
+            }
+        });
+};
+
+export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
     const { city } = req.body;
 
     console.log(`Received city: ${city}`); // Для отладки
@@ -134,6 +134,7 @@ export const getAllUniqueCities = async (req: RequestCustom, res: Response, next
 export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
     const {
         name,
+        email,
         title,
         deposit,
         description,
@@ -162,6 +163,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
     } = req.body;
     EateriesModel.create({
         name,
+        email,
         title,
         deposit,
         description,
@@ -534,23 +536,23 @@ export const addDisabledDatesToEaterie = (req: RequestCustom, res: Response, nex
         { $addToSet: { disabledDates: { $each: dates } } }, // Use $each to add multiple dates
         { new: true }
     )
-    .then((updatedEaterie) => {
-        if (!updatedEaterie) {
-            throw new NotFoundError('Заведение не найдено');
-        }
+        .then((updatedEaterie) => {
+            if (!updatedEaterie) {
+                throw new NotFoundError('Заведение не найдено');
+            }
 
-        res.status(200).send({
-            status: 'success',
-            data: updatedEaterie,
+            res.status(200).send({
+                status: 'success',
+                data: updatedEaterie,
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректный идентификатор заведения'));
+            } else {
+                next(new Error('Произошла ошибка при обновлении дат'));
+            }
         });
-    })
-    .catch((error) => {
-        if (error.name === 'CastError') {
-            next(new BadRequestError('Некорректный идентификатор заведения'));
-        } else {
-            next(new Error('Произошла ошибка при обновлении дат'));
-        }
-    });
 };
 
 export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
@@ -568,21 +570,21 @@ export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response
         { $pull: { disabledDates: { $in: dates } } }, // Удаление дат из массива disabledDates
         { new: true }
     )
-    .then((updatedEaterie) => {
-        if (!updatedEaterie) {
-            throw new NotFoundError('Заведение не найдено');
-        }
+        .then((updatedEaterie) => {
+            if (!updatedEaterie) {
+                throw new NotFoundError('Заведение не найдено');
+            }
 
-        res.status(200).send({
-            status: 'success',
-            data: updatedEaterie,
+            res.status(200).send({
+                status: 'success',
+                data: updatedEaterie,
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректный идентификатор заведения'));
+            } else {
+                next(new Error('Произошла ошибка при удалении дат'));
+            }
         });
-    })
-    .catch((error) => {
-        if (error.name === 'CastError') {
-            next(new BadRequestError('Некорректный идентификатор заведения'));
-        } else {
-            next(new Error('Произошла ошибка при удалении дат'));
-        }
-    });
 };
