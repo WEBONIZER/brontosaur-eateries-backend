@@ -70,7 +70,8 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   halls: { type: [hallSchema], required: true },
   tagTitle: { type: String, required: false },
   tagKeywords: { type: String, required: false },
-  eateriesAdminId: { type: String, required: true, default: '' }
+  eateriesAdminId: { type: String, required: true, default: '' },
+  payment: { type: Boolean, required: true }
 });
 
 // Метод для удаления устаревших дат в disabledDates
