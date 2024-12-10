@@ -33,6 +33,7 @@ interface IOrderToTable {
   active: boolean;
   confirmation: boolean;
   payment: boolean;
+  userCancelled: boolean;
 }
 
 interface IGuestsToTable {

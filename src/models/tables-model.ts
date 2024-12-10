@@ -16,6 +16,7 @@ interface IOrderToTable {
     active: boolean;
     confirmation: boolean;
     payment: boolean;
+    userCancelled: boolean;
 }
 
 const orderToTableSchema = new Schema<IOrderToTable>({
@@ -29,7 +30,8 @@ const orderToTableSchema = new Schema<IOrderToTable>({
     active: { type: Boolean, required: true, default: false },
     confirmation: { type: Boolean, required: true, default: false },
     payment: { type: Boolean, required: true, default: false },
-    deleteAt: { type: Date, required: true, index: { expires: '1d' } }
+    deleteAt: { type: Date, required: true, index: { expires: '1d' } },
+    userCancelled: {type: Boolean, required: true, default: false}
 });
 
 // Прежде чем сохранить документ, добавляем поле deleteAt
