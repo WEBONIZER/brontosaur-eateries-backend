@@ -27,7 +27,7 @@ const orderToTableSchema = new Schema<IOrderToTable>({
     date: { type: String, required: true },
     startTime: { type: Number, required: true },
     endTime: { type: Number, required: true },
-    active: { type: Boolean, required: true, default: false },
+    active: { type: Boolean, required: true, default: true },
     confirmation: { type: Boolean, required: true, default: false },
     payment: { type: Boolean, required: true, default: false },
     deleteAt: { type: Date, required: true, index: { expires: '1d' } },
