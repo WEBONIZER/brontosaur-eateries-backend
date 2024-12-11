@@ -131,3 +131,31 @@ export const updateTableBlocked = async (req: RequestCustom, res: Response) => {
         res.status(500).json({ message: 'Error updating table status', error });
     }
 };
+
+export const updateUserCancelled = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { tableId, orderId } = req.params;
+    const { userCancelled } = req.body;
+
+    try {
+        const table: any = await TableModel.findById(tableId);
+
+        if (!table) {
+            return res.status(404).json({ message: 'Table not found' });
+        }
+
+        // Ищем заказ по orderId
+        const order = table.orders.find((order: any) => order._id.toString() === orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Изменяем поле userCancelled
+        order.userCancelled = userCancelled !== undefined ? userCancelled : order.userCancelled;
+        await table.save();
+
+        return res.status(200).json({ message: 'Order updated successfully', table });
+    } catch (error: any) {
+        console.error('Error occurred:', error.message);
+        next(error);
+    }
+};
