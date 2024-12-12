@@ -43,6 +43,11 @@ const coordinatesSchema = new Schema({
   },
 });
 
+const ratingSchema = new Schema({
+  userId: { type: String, required: true }, // Кто поставил оценку
+  score: { type: Number, min: 1, max: 5, required: true }, // Оценка от 1 до 5
+});
+
 const eateriesSchema = new Schema<IEaterieDocument>({
   name: { type: String, required: true, unique: true },
   email: { type: String, required: true },
@@ -59,7 +64,6 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   disabledDates: { type: [String], required: true }, // Или Date[], если это возможно
   kitchenType: { type: String, required: true },
   openingHours: { type: openingHoursSchema, required: true },
-  rating: { type: [String], required: true },
   metro: { type: String, required: true },
   phone: { type: String, required: true },
   yandexmap: { type: String, required: true },
@@ -71,7 +75,8 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   tagTitle: { type: String, required: false },
   tagKeywords: { type: String, required: false },
   eateriesAdminId: { type: String, required: true, default: '' },
-  payment: { type: Boolean, required: true }
+  payment: { type: Boolean, required: true },
+  rating: { type: [ratingSchema], required: false, default: [] },
 });
 
 // Метод для удаления устаревших дат в disabledDates

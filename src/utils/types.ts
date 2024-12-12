@@ -63,6 +63,11 @@ interface IRestaurant {
   lon: number;
 }
 
+export interface IRating {
+  userId: string;
+  score: number;
+}
+
 export interface IEateries {
   name: string;
   deposit: number;
@@ -78,7 +83,7 @@ export interface IEateries {
   disabledDates: string[];
   kitchenType: string;
   openingHours: IOpeningHours;
-  rating: string[];
+  rating: IRating[];
   metro: string;
   phone: string;
   yandexmap: string;

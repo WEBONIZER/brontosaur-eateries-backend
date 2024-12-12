@@ -18,6 +18,8 @@ import {
     getEateriesById,
     addDisabledDatesToEaterie,
     removeDisabledDatesFromEaterie,
+    addRatingToEaterie,
+    updateRatingInEaterie
 } from '../controllers/eateries-controllers';
 
 const eateries = Router();
@@ -46,5 +48,8 @@ eateries.patch('/:eateriesRoute/views', addViewsToEaterie);
 
 eateries.post('/:eateriesRoute/disabled-dates', addDisabledDatesToEaterie);
 eateries.delete('/:eateriesRoute/disabled-dates', removeDisabledDatesFromEaterie);
+
+eateries.post('/:eateriesRoute/add-rating', addRatingToEaterie);
+eateries.patch('/:eateriesRoute/update-rating', updateRatingInEaterie);
 
 export default eateries; 
