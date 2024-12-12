@@ -672,37 +672,35 @@ export const updateRatingInEaterie = (req: RequestCustom, res: Response, next: N
         });
 };
 
-export const getRatingsByUserId = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    const { userId } = req.params;
+export const getRatingByUserAndEateriesRoute = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { eateriesRoute, userId } = req.params;
 
     try {
-        if (!userId) {
-            return next(new BadRequestError('Не указан userId'));
+        if (!eateriesRoute || !userId) {
+            return next(new BadRequestError('Не указаны необходимые параметры (eateriesRoute или userId)'));
         }
 
-        // Находим все заведения, в которых есть рейтинг от данного пользователя
-        const eateries = await EateriesModel.find({
-            'rating.userId': userId, // Проверяем вложенный массив ratings
-        })
-            .select('name route rating') // Выбираем, что вернуть (опционально)
-            .exec();
-
-        if (!eateries || eateries.length === 0) {
-            return next(new NotFoundError('Рейтинги этого пользователя не найдены'));
+        // Поиск заведения по маршруту
+        const eaterie = await EateriesModel.findOne({ route: eateriesRoute }).exec();
+        if (!eaterie) {
+            return next(new NotFoundError('Заведение не найдено'));
         }
 
-        // Форматируем данные
-        const userRatings = eateries.map((eaterie) => {
-            const { name, route } = eaterie;
-            const userRating = eaterie.rating.find((rating: any) => rating.userId === userId);
-            return { name, route, score: userRating?.score };
-        });
+        // Проверка рейтинга пользователя в данном заведении
+        const userRating = eaterie.rating.find((rating: any) => rating.userId === userId);
+        if (!userRating) {
+            return next(new NotFoundError('Рейтинг пользователя для этого заведения не найден'));
+        }
 
         res.status(200).send({
             status: 'success',
-            data: userRatings,
+            data: {
+                eateriesRoute: eaterie.route,
+                userId: userId,
+                score: userRating.score,
+            },
         });
     } catch (error: any) {
-        next(new Error('Произошла ошибка при получении рейтингов'));
+        next(new Error('Произошла ошибка при получении рейтинга'));
     }
 };
