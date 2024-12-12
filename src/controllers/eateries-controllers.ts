@@ -589,44 +589,54 @@ export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response
         });
 };
 
-export const addRatingToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
-    const { eateriesRoute } = req.params; // Маршрут заведения
-    const { userId, score } = req.body;  // Данные из запроса
+export const addRatingToEaterie = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { eateriesRoute } = req.params;
+    const { userId, score } = req.body;
 
     if (!userId || !score || typeof score !== 'number' || score < 1 || score > 5) {
         return next(new BadRequestError('Некорректные данные для оценки'));
     }
 
-    EateriesModel.findOneAndUpdate(
-        { route: eateriesRoute },
-        {
-            $push: {
-                rating: {
-                    userId,
-                    score,
+    try {
+        // Проверяем существование заведения
+        const eaterie = await EateriesModel.findOne({ route: eateriesRoute }).exec();
+        if (!eaterie) {
+            throw new NotFoundError('Заведение не найдено');
+        }
+
+        // Проверяем, оставил ли пользователь рейтинг раньше
+        const existingRating = eaterie.rating.find((rating: any) => rating.userId === userId);
+        if (existingRating) {
+            return next(new BadRequestError('Рейтинг уже был оставлен этим пользователем'));
+        }
+
+        // Добавляем рейтинг
+        const updatedEaterie = await EateriesModel.findOneAndUpdate(
+            { route: eateriesRoute },
+            {
+                $push: {
+                    rating: { userId, score },
                 },
             },
-        },
-        { new: true }
-    )
-        .then((updatedEaterie) => {
-            if (!updatedEaterie) {
-                throw new NotFoundError('Заведение не найдено');
-            }
+            { new: true }
+        ).exec();
 
-            res.status(200).send({
-                status: 'success',
-                message: 'Рейтинг добавлен!',
-                data: updatedEaterie,
-            });
-        })
-        .catch((error) => {
-            if (error.name === 'CastError') {
-                next(new BadRequestError('Некорректные данные'));
-            } else {
-                next(new Error('Произошла ошибка при добавлении рейтинга'));
-            }
+        if (!updatedEaterie) {
+            throw new NotFoundError('Заведение не найдено');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            message: 'Рейтинг добавлен!',
+            data: updatedEaterie,
         });
+    } catch (error: any) {
+        if (error.name === 'CastError') {
+            next(new BadRequestError('Некорректные данные'));
+        } else {
+            next(new Error('Произошла ошибка при добавлении рейтинга'));
+        }
+    }
 };
 
 export const updateRatingInEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {

@@ -44,7 +44,7 @@ const coordinatesSchema = new Schema({
 });
 
 const ratingSchema = new Schema({
-  userId: { type: String, required: true }, // Кто поставил оценку
+  userId: { type: String, required: true, unique: true }, // Кто поставил оценку
   score: { type: Number, min: 1, max: 5, required: true }, // Оценка от 1 до 5
 });
 
