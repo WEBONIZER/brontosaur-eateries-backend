@@ -671,3 +671,38 @@ export const updateRatingInEaterie = (req: RequestCustom, res: Response, next: N
             }
         });
 };
+
+export const getRatingsByUserId = async (req: RequestCustom, res: Response, next: NextFunction) => {
+    const { userId } = req.params;
+
+    try {
+        if (!userId) {
+            return next(new BadRequestError('Не указан userId'));
+        }
+
+        // Находим все заведения, в которых есть рейтинг от данного пользователя
+        const eateries = await EateriesModel.find({
+            'rating.userId': userId, // Проверяем вложенный массив ratings
+        })
+            .select('name route rating') // Выбираем, что вернуть (опционально)
+            .exec();
+
+        if (!eateries || eateries.length === 0) {
+            return next(new NotFoundError('Рейтинги этого пользователя не найдены'));
+        }
+
+        // Форматируем данные
+        const userRatings = eateries.map((eaterie) => {
+            const { name, route } = eaterie;
+            const userRating = eaterie.rating.find((rating: any) => rating.userId === userId);
+            return { name, route, score: userRating?.score };
+        });
+
+        res.status(200).send({
+            status: 'success',
+            data: userRatings,
+        });
+    } catch (error: any) {
+        next(new Error('Произошла ошибка при получении рейтингов'));
+    }
+};
