@@ -74,7 +74,7 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   halls: { type: [hallSchema], required: true },
   tagTitle: { type: String, required: false },
   tagKeywords: { type: String, required: false },
-  eateriesAdminId: { type: String, required: true, default: '' },
+  eateriesAdminId: { type: String, required: false, default: '' },
   payment: { type: Boolean, required: true },
   rating: { type: [ratingSchema], required: false, default: [] },
 });
