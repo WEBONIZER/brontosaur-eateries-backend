@@ -10,7 +10,7 @@ import tables from './src/routes/tables-routes';
 
 const { PORT, MONGO_URL } = process.env;
 
-const MONGO_CONNECT = MONGO_URL ? MONGO_URL : 'mongodb://localhost:27017/eateriesdb';
+const MONGO_CONNECT = MONGO_URL ? MONGO_URL : '';
 
 const app = express();
 
