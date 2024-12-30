@@ -143,9 +143,6 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         coordinates,
         averageBill,
         establishmentType,
-        likes,
-        viewsCount,
-        disabledDates,
         kitchenType,
         openingHours,
         metro,
@@ -157,9 +154,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         photo,
         halls,
         tagTitle,
-        tagKeywords,
-        eateriesAdminId,
-        payment
+        tagKeywords
     } = req.body;
     EateriesModel.create({
         name,
@@ -172,9 +167,6 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         coordinates,
         averageBill,
         establishmentType,
-        likes,
-        viewsCount,
-        disabledDates,
         kitchenType,
         openingHours,
         metro,
@@ -186,9 +178,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         photo,
         halls,
         tagTitle,
-        tagKeywords,
-        eateriesAdminId,
-        payment
+        tagKeywords
     })
         .then((data) => res.status(201).send({
             status: 'success',

@@ -44,12 +44,12 @@ const coordinatesSchema = new Schema({
 });
 
 const ratingSchema = new Schema({
-  userId: { type: String, required: true, unique: true }, // Кто поставил оценку
+  userId: { type: String, required: true }, // Кто поставил оценку
   score: { type: Number, min: 1, max: 5, required: true }, // Оценка от 1 до 5
 });
 
 const eateriesSchema = new Schema<IEaterieDocument>({
-  name: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   email: { type: String, required: true },
   title: { type: String, required: true },
   deposit: { type: Number, required: true },
@@ -59,15 +59,15 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   coordinates: coordinatesSchema,
   averageBill: { type: Number, required: true },
   establishmentType: { type: String, required: true },
-  likes: { type: [String], required: true },
-  viewsCount: { type: [String], required: true },
-  disabledDates: { type: [String], required: true }, // Или Date[], если это возможно
+  likes: { type: [String], required: false },
+  viewsCount: { type: [String], required: false },
+  disabledDates: { type: [String], required: false }, // Или Date[], если это возможно
   kitchenType: { type: String, required: true },
   openingHours: { type: openingHoursSchema, required: true },
   metro: { type: String, required: true },
   phone: { type: String, required: true },
   yandexmap: { type: String, required: true },
-  route: { type: String, required: true },
+  route: { type: String, required: true, unique: true },
   menu: { type: String, required: true, unique: true },
   catalog: { type: Boolean, required: true },
   photo: { type: photoSchema, required: true },
@@ -75,7 +75,7 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   tagTitle: { type: String, required: false },
   tagKeywords: { type: String, required: false },
   eateriesAdminId: { type: String, required: false, default: '' },
-  payment: { type: Boolean, required: true },
+  payment: { type: Boolean, required: false, default: true },
   rating: { type: [ratingSchema], required: false, default: [] },
 });
 
