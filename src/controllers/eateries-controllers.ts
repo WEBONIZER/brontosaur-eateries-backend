@@ -4,11 +4,10 @@ import {
 } from 'express';
 import EateriesModel from '../models/eateries-model';
 import TableModel from '../models/tables-model'
-import { RequestCustom } from '../utils/types';
 import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
 
-export const getAllEateries = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getAllEateries = async (req: any, res: Response, next: NextFunction) => {
     try {
         const eateries = await EateriesModel.find({}).populate({
             path: 'halls.tables'
@@ -27,7 +26,7 @@ export const getAllEateries = async (req: RequestCustom, res: Response, next: Ne
     }
 };
 
-export const getEateriesByName = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getEateriesByName = (req: any, res: Response, next: NextFunction) => {
 
     const eateriesRoute = req.params.eateriesRoute;
 
@@ -51,7 +50,7 @@ export const getEateriesByName = (req: RequestCustom, res: Response, next: NextF
         });
 };
 
-export const getEateriesById = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getEateriesById = (req: any, res: Response, next: NextFunction) => {
     const eateryId = req.params.id;
 
     EateriesModel.findById(eateryId)
@@ -78,7 +77,7 @@ export const getEateriesById = (req: RequestCustom, res: Response, next: NextFun
         });
 };
 
-export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getEateriesByCity = (req: any, res: Response, next: NextFunction) => {
     const { city } = req.body;
 
     console.log(`Received city: ${city}`); // Для отладки
@@ -114,7 +113,7 @@ export const getEateriesByCity = (req: RequestCustom, res: Response, next: NextF
         });
 };
 
-export const getAllUniqueCities = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getAllUniqueCities = async (req: any, res: Response, next: NextFunction) => {
     try {
         const cities = await EateriesModel.distinct('city'); // Этот метод вернет уникальные значения
 
@@ -131,7 +130,7 @@ export const getAllUniqueCities = async (req: RequestCustom, res: Response, next
     }
 };
 
-export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const postOneEaterie = (req: any, res: Response, next: NextFunction) => {
     const {
         name,
         email,
@@ -193,7 +192,7 @@ export const postOneEaterie = (req: RequestCustom, res: Response, next: NextFunc
         });
 };
 
-export const removeEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const removeEaterie = (req: any, res: Response, next: NextFunction) => {
     EateriesModel.deleteOne({ route: req.params.eateriesRoute })
         .then((data) => {
             if (data.deletedCount === 0) {
@@ -213,7 +212,7 @@ export const removeEaterie = (req: RequestCustom, res: Response, next: NextFunct
         });
 };
 
-export const addLikeToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const addLikeToEaterie = (req: any, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
     const { like } = req.body;
 
@@ -245,7 +244,7 @@ export const addLikeToEaterie = (req: RequestCustom, res: Response, next: NextFu
         });
 };
 
-export const removeLikeFromEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const removeLikeFromEaterie = (req: any, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
     const { like } = req.body;
 
@@ -481,7 +480,7 @@ export const updateOrderInTable = async (req: any, res: Response, next: NextFunc
     }
 };
 
-export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const addViewsToEaterie = (req: any, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
     const { views } = req.body;
 
@@ -513,7 +512,7 @@ export const addViewsToEaterie = (req: RequestCustom, res: Response, next: NextF
         });
 };
 
-export const addDisabledDatesToEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const addDisabledDatesToEaterie = (req: any, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
     const { dates } = req.body;
 
@@ -545,7 +544,7 @@ export const addDisabledDatesToEaterie = (req: RequestCustom, res: Response, nex
         });
 };
 
-export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const removeDisabledDatesFromEaterie = (req: any, res: Response, next: NextFunction) => {
     const eateriesRoute = req.params.eateriesRoute;
     const { dates } = req.body;
 
@@ -579,7 +578,7 @@ export const removeDisabledDatesFromEaterie = (req: RequestCustom, res: Response
         });
 };
 
-export const addRatingToEaterie = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const addRatingToEaterie = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute } = req.params;
     const { userId, score } = req.body;
 
@@ -629,7 +628,7 @@ export const addRatingToEaterie = async (req: RequestCustom, res: Response, next
     }
 };
 
-export const updateRatingInEaterie = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const updateRatingInEaterie = (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute } = req.params; // Маршрут заведения
     const { userId, newScore } = req.body; // Данные из запроса
 
@@ -662,7 +661,7 @@ export const updateRatingInEaterie = (req: RequestCustom, res: Response, next: N
         });
 };
 
-export const getRatingByUserAndEateriesRoute = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute, userId } = req.params;
 
     try {

@@ -22,36 +22,37 @@ import {
     updateRatingInEaterie,
     getRatingByUserAndEateriesRoute
 } from '../controllers/eateries-controllers';
+import { authMiddleware } from '../middlewares/auth-middlewares';
 
 const eateries = Router();
 
-eateries.get('/', getAllEateries);
-eateries.post('/by-city', getEateriesByCity);
-eateries.get('/unique-cities', getAllUniqueCities);
-eateries.post('/', postOneEaterie);
-eateries.delete('/:eateriesRoute', removeEaterie)
-eateries.get('/:eateriesRoute', getEateriesByName);
-eateries.get('/get-eaterie/:id', getEateriesById);
-eateries.patch('/:eateriesRoute/like', addLikeToEaterie);
-eateries.delete('/:eateriesRoute/like', removeLikeFromEaterie);
+eateries.get('/', authMiddleware, getAllEateries);
+eateries.post('/by-city', authMiddleware, getEateriesByCity);
+eateries.get('/unique-cities', authMiddleware, getAllUniqueCities);
+eateries.post('/', authMiddleware, postOneEaterie);
+eateries.delete('/:eateriesRoute', authMiddleware, removeEaterie)
+eateries.get('/:eateriesRoute', authMiddleware, getEateriesByName);
+eateries.get('/get-eaterie/:id', authMiddleware, getEateriesById);
+eateries.patch('/:eateriesRoute/like', authMiddleware, addLikeToEaterie);
+eateries.delete('/:eateriesRoute/like', authMiddleware, removeLikeFromEaterie);
 
 // Добавление и удаление залов
-eateries.post('/:eateriesRoute/halls', addHallToEaterie);
-eateries.delete('/:eateriesRoute/halls/:hallRoute', removeHallFromEaterie); // Удалить зал по имени
+eateries.post('/:eateriesRoute/halls', authMiddleware, addHallToEaterie);
+eateries.delete('/:eateriesRoute/halls/:hallRoute', authMiddleware, removeHallFromEaterie); // Удалить зал по имени
 
-eateries.post('/:eateriesRoute/halls/:hallRoute/tables', addTableToHall);
-eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableId', removeTableFromHall);
+eateries.post('/:eateriesRoute/halls/:hallRoute/tables', authMiddleware, addTableToHall);
+eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableId', authMiddleware, removeTableFromHall);
 
-eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', removeOrderFromTable);
-eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', updateOrderInTable);
+eateries.delete('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', authMiddleware, removeOrderFromTable);
+eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:orderNumber', authMiddleware, updateOrderInTable);
 
-eateries.patch('/:eateriesRoute/views', addViewsToEaterie);
+eateries.patch('/:eateriesRoute/views', authMiddleware, addViewsToEaterie);
 
-eateries.post('/:eateriesRoute/disabled-dates', addDisabledDatesToEaterie);
-eateries.delete('/:eateriesRoute/disabled-dates', removeDisabledDatesFromEaterie);
+eateries.post('/:eateriesRoute/disabled-dates', authMiddleware, addDisabledDatesToEaterie);
+eateries.delete('/:eateriesRoute/disabled-dates', authMiddleware, removeDisabledDatesFromEaterie);
 
-eateries.post('/:eateriesRoute/add-rating', addRatingToEaterie);
-eateries.patch('/:eateriesRoute/update-rating', updateRatingInEaterie);
-eateries.get('/:eateriesRoute/rating/:userId', getRatingByUserAndEateriesRoute);
+eateries.post('/:eateriesRoute/add-rating', authMiddleware, addRatingToEaterie);
+eateries.patch('/:eateriesRoute/update-rating', authMiddleware, updateRatingInEaterie);
+eateries.get('/:eateriesRoute/rating/:userId', authMiddleware, getRatingByUserAndEateriesRoute);
 
 export default eateries; 

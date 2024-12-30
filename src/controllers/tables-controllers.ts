@@ -3,11 +3,10 @@ import {
     NextFunction,
 } from 'express';
 import TableModel from '../models/tables-model'
-import { RequestCustom } from '../utils/types';
 import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
 
-export const getAllTables = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getAllTables = async (req: any, res: Response, next: NextFunction) => {
     try {
         const tables = await TableModel.find({});
 
@@ -25,7 +24,7 @@ export const getAllTables = async (req: RequestCustom, res: Response, next: Next
     }
 };
 
-export const getTableById = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const getTableById = (req: any, res: Response, next: NextFunction) => {
 
     const { tableId } = req.params;
 
@@ -49,7 +48,7 @@ export const getTableById = (req: RequestCustom, res: Response, next: NextFuncti
         });
 };
 
-export const addOrderToTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
     const { tableId } = req.params;
     const order = req.body;
 
@@ -85,7 +84,7 @@ export const addOrderToTable = async (req: RequestCustom, res: Response, next: N
     }
 };
 
-export const removeOrderFromTable = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const removeOrderFromTable = async (req: any, res: Response, next: NextFunction) => {
     const { tableId, orderId } = req.params;
 
     try {
@@ -112,7 +111,7 @@ export const removeOrderFromTable = async (req: RequestCustom, res: Response, ne
     }
 };
 
-export const updateTableBlocked = async (req: RequestCustom, res: Response) => {
+export const updateTableBlocked = async (req: any, res: Response) => {
     const { tableId } = req.params;
     const { blocked } = req.body;
 
@@ -132,7 +131,7 @@ export const updateTableBlocked = async (req: RequestCustom, res: Response) => {
     }
 };
 
-export const updateUserCancelled = async (req: RequestCustom, res: Response, next: NextFunction) => {
+export const updateUserCancelled = async (req: any, res: Response, next: NextFunction) => {
     const { tableId, orderId } = req.params;
     const { userCancelled } = req.body;
 

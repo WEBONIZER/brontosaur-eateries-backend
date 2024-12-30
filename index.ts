@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import errorMdlwr from "./src/middlewares/error";
 import eateries from './src/routes/eateries-routes';
 import tables from './src/routes/tables-routes';
+import { authMiddleware } from './src/middlewares/auth-middlewares'
 
 const { PORT, MONGO_URL } = process.env;
 
