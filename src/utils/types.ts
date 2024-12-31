@@ -64,6 +64,7 @@ interface IRestaurant {
 }
 
 export interface IRating {
+  orderId: string;
   userId: string;
   score: number;
 }

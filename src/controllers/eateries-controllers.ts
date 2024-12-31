@@ -580,7 +580,7 @@ export const removeDisabledDatesFromEaterie = (req: any, res: Response, next: Ne
 
 export const addRatingToEaterie = async (req: any, res: Response, next: NextFunction) => {
     const { eateriesRoute } = req.params;
-    const { userId, score } = req.body;
+    const { userId, score, orderId } = req.body;
 
     if (!userId || !score || typeof score !== 'number' || score < 1 || score > 5) {
         return next(new BadRequestError('Некорректные данные для оценки'));
@@ -594,17 +594,17 @@ export const addRatingToEaterie = async (req: any, res: Response, next: NextFunc
         }
 
         // Проверяем, оставил ли пользователь рейтинг раньше
-        const existingRating = eaterie.rating.find((rating: any) => rating.userId === userId);
+        {/*const existingRating = eaterie.rating.find((rating: any) => rating.userId === userId);
         if (existingRating) {
             return next(new BadRequestError('Рейтинг уже был оставлен этим пользователем'));
-        }
+        }*/}
 
         // Добавляем рейтинг
         const updatedEaterie = await EateriesModel.findOneAndUpdate(
             { route: eateriesRoute },
             {
                 $push: {
-                    rating: { userId, score },
+                    rating: { userId, score, orderId },
                 },
             },
             { new: true }
@@ -628,17 +628,12 @@ export const addRatingToEaterie = async (req: any, res: Response, next: NextFunc
     }
 };
 
-export const updateRatingInEaterie = (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute } = req.params; // Маршрут заведения
-    const { userId, newScore } = req.body; // Данные из запроса
-
-    if (!userId || !newScore || typeof newScore !== 'number' || newScore < 1 || newScore > 5) {
-        return next(new BadRequestError('Некорректные данные для обновления оценки'));
-    }
+export const deleteRatingInEaterie = (req: any, res: Response, next: NextFunction) => {
+    const { eateriesRoute, ratingId } = req.params; // Маршрут заведения
 
     EateriesModel.findOneAndUpdate(
-        { route: eateriesRoute, 'rating.userId': userId },
-        { $set: { 'rating.$.score': newScore } }, // Обновляем "score" для пользователя
+        { route: eateriesRoute },
+        { $pull: { rating: { _id: ratingId } } }, // Удаляем рейтинг по ratingId и userId
         { new: true }
     )
         .then((updatedEaterie) => {
@@ -648,7 +643,7 @@ export const updateRatingInEaterie = (req: any, res: Response, next: NextFunctio
 
             res.status(200).send({
                 status: 'success',
-                message: 'Рейтинг обновлен!',
+                message: 'Рейтинг удален!',
                 data: updatedEaterie,
             });
         })
@@ -656,16 +651,16 @@ export const updateRatingInEaterie = (req: any, res: Response, next: NextFunctio
             if (error.name === 'CastError') {
                 next(new BadRequestError('Некорректные данные'));
             } else {
-                next(new Error('Произошла ошибка при обновлении рейтинга'));
+                next(new Error('Произошла ошибка при удалении рейтинга'));
             }
         });
 };
 
 export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, next: NextFunction) => {
-    const { eateriesRoute, userId } = req.params;
+    const { eateriesRoute, userId, orderId } = req.params;
 
     try {
-        if (!eateriesRoute || !userId) {
+        if (!eateriesRoute || !userId || !orderId) {
             return next(new BadRequestError('Не указаны необходимые параметры (eateriesRoute или userId)'));
         }
 
@@ -676,7 +671,7 @@ export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, n
         }
 
         // Проверка рейтинга пользователя в данном заведении
-        const userRating = eaterie.rating.find((rating: any) => rating.userId === userId);
+        const userRating = eaterie.rating.find((rating: any) => rating.userId === userId && rating.orderId === orderId);
         if (!userRating) {
             return next(new NotFoundError('Рейтинг пользователя для этого заведения не найден'));
         }
@@ -687,6 +682,7 @@ export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, n
                 eateriesRoute: eaterie.route,
                 userId: userId,
                 score: userRating.score,
+                orderId: orderId
             },
         });
     } catch (error: any) {

@@ -7,17 +7,21 @@ import mongoose from "mongoose";
 import errorMdlwr from "./src/middlewares/error";
 import eateries from './src/routes/eateries-routes';
 import tables from './src/routes/tables-routes';
-import { authMiddleware } from './src/middlewares/auth-middlewares'
 
 const { PORT, MONGO_URL } = process.env;
 
-const MONGO_CONNECT = MONGO_URL ? MONGO_URL : '';
-
-const app = express();
+if (!MONGO_URL) {
+  console.error('MongoDB URL is not defined in the env file.');
+  process.exit(1);
+}
 
 mongoose.set("strictQuery", false);
-mongoose.connect(MONGO_CONNECT);
+mongoose
+  .connect(MONGO_URL)
+  .then(() => console.log('DB ok'))
+  .catch((err) => console.log('DB error', err));
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,6 +37,7 @@ const httpsOptions = {
     cert: readFileSync("../.env/fullchain.cer"),
 };
 
+// Создание HTTPS сервера
 https.createServer(httpsOptions, app).listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
 });

@@ -19,7 +19,7 @@ import {
     addDisabledDatesToEaterie,
     removeDisabledDatesFromEaterie,
     addRatingToEaterie,
-    updateRatingInEaterie,
+    deleteRatingInEaterie,
     getRatingByUserAndEateriesRoute
 } from '../controllers/eateries-controllers';
 import { authMiddleware } from '../middlewares/auth-middlewares';
@@ -52,7 +52,7 @@ eateries.post('/:eateriesRoute/disabled-dates', authMiddleware, addDisabledDates
 eateries.delete('/:eateriesRoute/disabled-dates', authMiddleware, removeDisabledDatesFromEaterie);
 
 eateries.post('/:eateriesRoute/add-rating', authMiddleware, addRatingToEaterie);
-eateries.patch('/:eateriesRoute/update-rating', authMiddleware, updateRatingInEaterie);
-eateries.get('/:eateriesRoute/rating/:userId', authMiddleware, getRatingByUserAndEateriesRoute);
+eateries.delete('/:eateriesRoute/delete-rating/:ratingId', authMiddleware, deleteRatingInEaterie);
+eateries.get('/:eateriesRoute/rating/:userId/:orderId', authMiddleware, getRatingByUserAndEateriesRoute);
 
 export default eateries; 
