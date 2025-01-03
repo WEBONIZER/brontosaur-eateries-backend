@@ -136,9 +136,6 @@ export const postOneOrder = async (req: RequestCustom, res: Response) => {
             barName,
         } = req.body;
 
-        console.log(process.env.EMAIL_USER);
-        console.log(process.env.EMAIL_PASS);
-
         // Проверяем наличие tableId
         if (!tableId) {
             return res.status(400).json({ error: 'tableId is required' });
@@ -461,29 +458,3 @@ export const updateStartTimeAdmin = updateAdminField('startTime');
 export const updateEmdTimeAdmin = updateAdminField('endTime');
 export const updateUserCancelledAdmin = updateAdminField('userCancelled');
 export const unActiveOrderAdmin = updateAdminField('active');
-
-// Функция для определения темы письма
-const getSubjectByField = (field: string): string => {
-    switch (field) {
-        case 'userCancelled':
-            return 'Ваш заказ отменён пользователем';
-
-        case 'admin-confirmation':
-            return 'Ваш заказ подтверждён!';
-        case 'admin-cancelled':
-            return 'Ваш заказ отменён';
-        case 'admin-tableNumber':
-            return 'Ваш заказ обновлён (номер стола)';
-        case 'admin-startTime':
-            return 'Ваш заказ обновлён (время начала)';
-        case 'admin-endTime':
-            return 'Ваш заказ обновлён (время завершения)';
-        case 'admin-userCancelled':
-            return 'Ваш заказ отменён пользователем';
-        case 'admin-active':
-            return 'Ваш заказ стал неактивным';
-
-        default:
-            return 'Обновление заказа в Brontosaur';
-    }
-};
