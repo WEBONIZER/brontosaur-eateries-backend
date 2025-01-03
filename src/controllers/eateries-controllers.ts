@@ -679,7 +679,14 @@ export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, n
         // Проверка рейтинга пользователя в данном заведении
         const userRating = eaterie.rating.find((rating: any) => rating.userId === userId && rating.orderId === orderId);
         if (!userRating) {
-            return next(new NotFoundError('Рейтинг пользователя для этого заведения не найден'));
+            return res.status(200).send({
+                status: 'not-found',
+                data: {
+                    eateriesRoute: eaterie.route,
+                    userId: userId,
+                    orderId: ''
+                },
+            });
         }
 
         res.status(200).send({
@@ -691,6 +698,7 @@ export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, n
                 orderId: orderId
             },
         });
+        
     } catch (error: any) {
         next(new Error('Произошла ошибка при получении рейтинга'));
     }
