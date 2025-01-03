@@ -48,6 +48,30 @@ export const getTableById = (req: any, res: Response, next: NextFunction) => {
         });
 };
 
+export const deleteTableById = (req: any, res: Response, next: NextFunction) => {
+    const { tableId } = req.params;
+
+    TableModel.findByIdAndDelete(tableId)
+        .then((deletedTable) => {
+            if (!deletedTable) {
+                throw new NotFoundError('Стол не найден');
+            }
+
+            res.status(200).send({
+                status: 'success',
+                message: 'Стол успешно удалён',
+                data: deletedTable, // Возвращаем данные удалённого стола (если нужно)
+            });
+        })
+        .catch((error) => {
+            if (error.name === 'CastError') {
+                next(new BadRequestError('Некорректный идентификатор стола'));
+            } else {
+                next(new Error('Произошла ошибка при удалении стола'));
+            }
+        });
+};
+
 export const addOrderToTable = async (req: any, res: Response, next: NextFunction) => {
     const { tableId } = req.params;
     const order = req.body;

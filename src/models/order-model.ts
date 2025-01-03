@@ -10,6 +10,10 @@ const orderSchema = new Schema<IOrder>({
     type: String,
     required: true,
   },
+  tableId: {
+    type: String,
+    required: true,
+  },
   orderNumber: {
     type: Number,
     required: false,

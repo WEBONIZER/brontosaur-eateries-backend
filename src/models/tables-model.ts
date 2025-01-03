@@ -1,6 +1,7 @@
 import {
     Schema,
     model,
+    ObjectId
 } from 'mongoose';
 
 // Схема для заказа
@@ -54,7 +55,7 @@ interface ITable {
     photo?: string;
     places: number;
     chairs: string;
-    orders?: IOrderToTable[];
+    orders?: ObjectId[]; // изменено на массив ObjectId
     blocked: boolean;
     guests: {
         min: number;
@@ -68,7 +69,7 @@ const tableSchema = new Schema<ITable>({
     hallId: { type: String, required: true },
     places: { type: Number, required: true },
     chairs: { type: String, required: true },
-    orders: { type: [orderToTableSchema], default: [] },
+    orders: { type: [Schema.Types.ObjectId], ref: 'order', default: [] }, // изменено на массив ObjectId с референцией
     blocked: { type: Boolean, required: true, default: false },
     guests: {
         min: { type: Number, required: true },

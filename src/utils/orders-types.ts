@@ -14,6 +14,7 @@ interface IOrderTime {
 export interface IOrder {
   comment: string;
   userID: string;
+  tableId: string;
   orderNumber: number;
   active: boolean;
   confirmation: boolean;

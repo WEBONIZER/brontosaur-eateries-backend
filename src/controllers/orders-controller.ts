@@ -3,6 +3,7 @@ import {
     NextFunction,
 } from 'express';
 import OrderModel from '../models/order-model';
+import TableModel from '../models/tables-model'
 import { RequestCustom } from '../utils/types';
 import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
@@ -109,43 +110,67 @@ export const getOrderByNumber = (req: RequestCustom, res: Response, next: NextFu
         });
 };
 
-export const postOneOrder = async (req: RequestCustom, res: Response, next: NextFunction) => {
-    const {
-        comment,
-        userID,
-        guests,
-        tableNumber,
-        barId,
-        date,
-        orderCloseDate,
-        startTime,
-        endTime,
-        menuItemsBox,
-        orderSum,
-        confirmation,
-        payment,
-        prepareFoodInAdvance,
-        cancelled,
-        userCancelled,
-        userEmail,
-        eaterieEmail,
-        barName
-    } = req.body;
-
+export const postOneOrder = async (req: RequestCustom, res: Response) => {
     try {
+        const {
+            tableId,
+            comment,
+            userID,
+            active,
+            tableNumber,
+            confirmation,
+            cancelled,
+            userCancelled,
+            payment,
+            prepareFoodInAdvance,
+            guests,
+            barId,
+            date,
+            orderCloseDate,
+            startTime,
+            endTime,
+            menuItemsBox,
+            orderSum,
+            userEmail,
+            eaterieEmail,
+            barName,
+        } = req.body;
+
+        console.log(process.env.EMAIL_USER);
+        console.log(process.env.EMAIL_PASS);
+
+        // Проверяем наличие tableId
+        if (!tableId) {
+            return res.status(400).json({ error: 'tableId is required' });
+        }
+
+        // Проверяем, существует ли стол с данным ID
+        const table = await TableModel.findById(tableId);
+        if (!table) {
+            return res.status(404).json({ error: 'Table not found' });
+        }
+
         // Получаем максимальный orderNumber из существующих заказов
         const maxOrderNumber = await OrderModel.findOne().sort({ orderNumber: -1 }).limit(1);
 
-        let newOrderNumber: number = 1;  // Начальное значение для первого заказа
+        let newOrderNumber: number = 1; // Начальное значение для первого заказа
 
         if (maxOrderNumber) {
             newOrderNumber = maxOrderNumber.orderNumber + 1;
         }
 
+        // Создаем новый заказ
         const newOrder = new OrderModel({
             comment,
             userID,
+            tableId,
             orderNumber: newOrderNumber,
+            active,
+            confirmation,
+            cancelled,
+            userCancelled,
+            payment,
+            prepareFoodInAdvance,
             guests,
             tableNumber,
             barId,
@@ -155,14 +180,9 @@ export const postOneOrder = async (req: RequestCustom, res: Response, next: Next
             endTime,
             menuItemsBox,
             orderSum,
-            confirmation,
-            payment,
-            prepareFoodInAdvance,
-            cancelled,
-            userCancelled,
             userEmail,
             eaterieEmail,
-            barName
+            barName,
         });
 
         // Опционально: отправляем подтверждающее письмо пользователю
@@ -221,17 +241,21 @@ export const postOneOrder = async (req: RequestCustom, res: Response, next: Next
 
         const savedOrder = await newOrder.save();
 
+        await TableModel.findByIdAndUpdate(
+            tableId,
+            { $push: { orders: savedOrder._id } },  // Добавляем ID нового заказа в массив orders
+            { new: true }  // Возвращаем обновленный документ
+        );
+
+        // Возвращаем успешный ответ
         res.status(201).json({
             status: 'success',
             data: savedOrder,
         });
 
-    } catch (error: any) {
-        if (error.name === 'ValidationError') {
-            next(new BadRequestError('Некорректные данные'));
-        } else {
-            next(error);
-        }
+    } catch (error) {
+        console.error('Error while creating order:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 

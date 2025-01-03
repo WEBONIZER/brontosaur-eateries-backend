@@ -89,7 +89,10 @@ export const getEateriesByCity = (req: any, res: Response, next: NextFunction) =
     const decodedCity = decodeURIComponent(city); // Декодирование значения города
 
     EateriesModel.find({ city: decodedCity }).populate({
-        path: 'halls.tables'
+        path: 'halls.tables',
+        populate: {
+            path: 'orders', // Указываем, что хотим популяцию для поля 'orders'
+        }
     })
         .then((eateries) => {
             if (!eateries.length) {
