@@ -7,37 +7,95 @@ import mongoose from "mongoose";
 import errorMdlwr from "./src/middlewares/error";
 import eateries from './src/routes/eateries-routes';
 import tables from './src/routes/tables-routes';
+import orders from './src/routes/orders-router'
+import OrderModel from './src/models/order-model';
+import { WebSocketServer } from 'ws';
 
-const { PORT, MONGO_URL } = process.env;
+const { WS_PORT, PORT, MONGO_URL } = process.env;
+const MONGO_CONNECT = MONGO_URL ? MONGO_URL : '';
 
 if (!MONGO_URL) {
   console.error('MongoDB URL is not defined in the env file.');
   process.exit(1);
 }
 
-mongoose.set("strictQuery", false);
-mongoose
-  .connect(MONGO_URL)
-  .then(() => console.log('DB ok'))
-  .catch((err) => console.log('DB error', err));
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use("/eateries", eateries);
-app.use("/tables", tables);
-app.use("*", (_req, res) => {
-    res.status(404).json({ message: "Not Found" });
-});
-app.use(errorMdlwr);
-
-const httpsOptions = {
+(async (expressServer) => {
+  const crt = {
     key: readFileSync("../.env/brontosaur.ru.key"),
     cert: readFileSync("../.env/fullchain.cer"),
-};
+  };
 
-// Создание HTTPS сервера
-https.createServer(httpsOptions, app).listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
-});
+  const httpsServer = https.createServer(crt, expressServer);
+
+  httpsServer.listen(PORT, async () => {
+    mongoose.set('strictQuery', false);
+    await mongoose.connect(MONGO_CONNECT);
+
+    try {
+      expressServer
+        .use(cors())
+        .use(express.json())
+        .use(express.urlencoded({ extended: true }))
+        .use("/eateries", eateries)
+        .use("/tables", tables)
+        .use('/orders', orders)
+        .use('*', (req, res) => {
+          res.status(404).json({ message: 'Not Found' });
+        })
+        .use(errorMdlwr)
+        .post('/send-message', async (req, res, next) => {
+          try {
+            const { content } = req.body;
+            const newMessage = new OrderModel({ content });
+            await newMessage.save();
+
+            // Отправка сообщения всем подключенным клиентам
+            wss.clients.forEach(client => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ type: 'newMessage', data: newMessage }));
+              }
+            });
+
+            res.status(201).json({ message: 'Message received and broadcasted.' });
+          } catch (error) {
+            next(error);
+          }
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  const wssServer = https.createServer(crt, expressServer);
+
+  const wss = new WebSocketServer({ server: wssServer });
+
+  wss.on('connection', connection => {
+    console.log('Новое подключение клиента');
+
+    connection.send(JSON.stringify({ success: true, message: "Новое подключение клиента" }));
+
+    connection.on('message', async (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        const { action, barId } = data;
+
+        if (action === 'getOrdersByBarId') {
+          const orders = await OrderModel.find({ barId });
+          connection.send(JSON.stringify({ type: 'orders', data: orders }));
+        }
+      } catch (error) {
+        console.error('Error processing message:', error);
+        connection.send(JSON.stringify({ success: false, message: 'Error processing your request' }));
+      }
+    });
+
+    connection.on('close', () => {
+      console.log('Клиент отключился');
+    });
+  });
+
+  wssServer.listen(WS_PORT, () => {
+    console.log(`WebSocket server listening on port ${WS_PORT}`);
+  });
+})(express());
