@@ -56,6 +56,9 @@ export const getEateriesById = (req: any, res: Response, next: NextFunction) => 
     EateriesModel.findById(eateryId)
         .populate({
             path: 'halls.tables',
+            populate: {
+                path: 'orders', // Указываем, что хотим популяцию для поля 'orders'
+            }
         })
         .then((foundEatery) => {
             if (!foundEatery) {
