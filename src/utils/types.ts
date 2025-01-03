@@ -22,20 +22,6 @@ interface IPhotoToHall {
   alt: string;
 }
 
-interface IOrderToTable {
-  guests: number;
-  orderNumber: number;
-  tableNumber: number;
-  barId: string;
-  date: string;
-  startTime: number;
-  endTime: number;
-  active: boolean;
-  confirmation: boolean;
-  payment: boolean;
-  userCancelled: boolean;
-}
-
 interface IGuestsToTable {
   min: number;
   max: number;
@@ -43,11 +29,16 @@ interface IGuestsToTable {
 
 export interface ITable {
   number: number;
-  orders: IOrderToTable[];
-  photo: string;
+  hallId: string;
+  photo?: string;
   places: number;
   chairs: string;
-  guests: IGuestsToTable;
+  orders?: ObjectId[];
+  blocked: boolean;
+  guests: {
+      min: number;
+      max: number;
+  };
 }
 
 interface IHall {

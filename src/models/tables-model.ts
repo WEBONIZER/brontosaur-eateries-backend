@@ -1,79 +1,50 @@
 import {
     Schema,
-    model,
-    ObjectId
+    model
 } from 'mongoose';
-
-// Схема для заказа
-interface IOrderToTable {
-    guests: number;
-    tableNumber: number;
-    orderNumber?: number;
-    barId: string;
-    date: string;
-    startTime: number;
-    endTime: number;
-    deleteAt?: Date;
-    active: boolean;
-    confirmation: boolean;
-    payment: boolean;
-    userCancelled: boolean;
-}
-
-const orderToTableSchema = new Schema<IOrderToTable>({
-    guests: { type: Number, required: true },
-    tableNumber: { type: Number, required: true },
-    orderNumber: { type: Number },
-    barId: { type: String, required: true },
-    date: { type: String, required: true },
-    startTime: { type: Number, required: true },
-    endTime: { type: Number, required: true },
-    active: { type: Boolean, required: true, default: true },
-    confirmation: { type: Boolean, required: true, default: false },
-    payment: { type: Boolean, required: true, default: false },
-    deleteAt: { type: Date, required: true, index: { expires: '1d' } },
-    userCancelled: {type: Boolean, required: true, default: false}
-});
-
-// Прежде чем сохранить документ, добавляем поле deleteAt
-orderToTableSchema.pre('save', function (next) {
-    const order = this as any;
-    const date = new Date(order.date);
-
-    if (isNaN(date.getTime())) {
-        next(new Error('Invalid date format'));
-    } else {
-        order.deleteAt = new Date(date.getTime() + 24 * 60 * 60 * 1000);
-        next();
-    }
-});
-
-// Схема для столика
-interface ITable {
-    number: number;
-    hallId: string;
-    photo?: string;
-    places: number;
-    chairs: string;
-    orders?: ObjectId[]; // изменено на массив ObjectId
-    blocked: boolean;
-    guests: {
-        min: number;
-        max: number;
-    };
-}
+import OrderModel from './order-model'
+import { ITable } from '../utils/types'
 
 const tableSchema = new Schema<ITable>({
-    number: { type: Number, required: true },
-    photo: { type: String, required: true },
-    hallId: { type: String, required: true },
-    places: { type: Number, required: true },
-    chairs: { type: String, required: true },
-    orders: { type: [Schema.Types.ObjectId], ref: 'order', default: [] }, // изменено на массив ObjectId с референцией
-    blocked: { type: Boolean, required: true, default: false },
+    number: {
+        type: Number,
+        required: true
+    },
+    photo: {
+        type: String,
+        required: true
+    },
+    hallId: {
+        type: String,
+        required: true
+    },
+    places: {
+        type: Number,
+        required: true
+    },
+    chairs: {
+        type: String,
+        required: true
+    },
+    orders: {
+        type: [Schema.Types.ObjectId],
+        ref: 'order',
+        default: []
+    },
+    blocked: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     guests: {
-        min: { type: Number, required: true },
-        max: { type: Number, required: true },
+        min: {
+            type: Number,
+            required: true
+        },
+        max: {
+            type: Number,
+            required: true
+        },
     }
 });
 
@@ -81,20 +52,51 @@ tableSchema.index({ hallId: 1, number: 1 }, { unique: true });
 
 const TableModel = model<ITable>("table", tableSchema);
 
-// Фоновая задача для удаления просроченных заказов
-const removeExpiredOrders = async () => {
-    const tables: any = await TableModel.find({});
-    const now = new Date();
+const markAndRemoveExpiredOrders = async () => {
+    try {
+        const now = new Date();
+        const todayUTCDateString = now.toISOString().split('T')[0]; // Текущая дата в формате 'YYYY-MM-DD'
 
-    for (const table of tables) {
-        table.orders = table.orders.filter((order: any) => order.deleteAt > now);
-        await table.save();
+        // Находим все столы
+        const tables = await TableModel.find().populate('orders'); // Заполняем заказы для каждого стола
+
+        for (const table of tables) {
+            // Проверка наличия заказов в столе
+            if (!table.orders || table.orders.length === 0) {
+                console.log(`No orders found for table ${table.number}.`);
+                continue; // Переходим к следующему столу
+            }
+
+            // Фильтруем заказы, которые совпадают с текущей датой
+            const expiredOrders = table.orders.filter((order: any) => {
+                return order.active &&
+                    new Date(order.orderCloseDate).toISOString().split('T')[0] === todayUTCDateString;
+            });
+
+            if (expiredOrders.length > 0) {
+                // Обновляем неактивные заказы
+                await OrderModel.updateMany(
+                    { _id: { $in: expiredOrders.map((order: any) => order._id) } },
+                    { $set: { active: false, cancelled: true, confirmation: true } }
+                );
+
+                // Удаляем заказы из стола
+                table.orders = table.orders.filter((order: any) =>
+                    !expiredOrders.some((expiredOrder: any) => expiredOrder._id.toString() === order._id.toString())
+                );
+
+                await table.save(); // Сохраняем изменения в столе
+                console.log(`Updated and removed ${expiredOrders.length} orders from table ${table.number}.`);
+            } else {
+                console.log(`No expired orders for table ${table.number}.`);
+            }
+        }
+    } catch (error) {
+        console.error('Error marking and removing expired orders:', error);
     }
-
-    console.log('Expired orders removed at:', new Date());
 };
 
-// Запуск фоновой задачи каждые 5 часов
-setInterval(removeExpiredOrders, 5 * 60 * 60 * 1000); // 5 минут
+// Запуск функции каждые 3 часа
+setInterval(markAndRemoveExpiredOrders, 3 * 60 * 60 * 1000);
 
 export default TableModel;
