@@ -50,35 +50,128 @@ const ratingSchema = new Schema({
 });
 
 const eateriesSchema = new Schema<IEaterieDocument>({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  title: { type: String, required: true },
-  deposit: { type: Number, required: true },
-  description: { type: String, required: true },
-  city: { type: String, required: true },
-  adress: { type: String, required: true },
+  name: { 
+    type: String, 
+    required: true 
+  },
+  email: { 
+    type: String, 
+    required: true 
+  },
+  title: { 
+    type: String, 
+    required: true 
+  },
+  deposit: { 
+    type: Number, 
+    required: true 
+  },
+  description: { 
+    type: String, 
+    required: true 
+  },
+  city: { 
+    type: String, 
+    required: true 
+  },
+  adress: { 
+    type: String, 
+    required: true 
+  },
   coordinates: coordinatesSchema,
-  averageBill: { type: Number, required: true },
-  establishmentType: { type: String, required: true },
-  likes: { type: [String], required: false },
-  viewsCount: { type: [String], required: false },
-  disabledDates: { type: [String], required: false }, // Или Date[], если это возможно
-  kitchenType: { type: String, required: true },
-  openingHours: { type: openingHoursSchema, required: true },
-  metro: { type: String, required: true },
-  phone: { type: String, required: true },
-  yandexmap: { type: String, required: true },
-  route: { type: String, required: true, unique: true },
-  menu: { type: String, required: true, unique: true },
-  catalog: { type: Boolean, required: true },
-  photo: { type: photoSchema, required: true },
-  halls: { type: [hallSchema], required: true },
-  tagTitle: { type: String, required: false },
-  tagKeywords: { type: String, required: false },
-  eateriesAdminId: { type: String, required: false, default: '' },
-  payment: { type: Boolean, required: false, default: true },
-  rating: { type: [ratingSchema], required: false, default: [] },
+  averageBill: { 
+    type: Number, 
+    required: true 
+  },
+  establishmentType: { 
+    type: String, 
+    required: true 
+  },
+  likes: { 
+    type: [String], 
+    required: false 
+  },
+  viewsCount: { 
+    type: [String], 
+    required: false 
+  },
+  disabledDates: { 
+    type: [String], 
+    required: false 
+  },
+  kitchenType: { 
+    type: String, 
+    required: true 
+  },
+  openingHours: { 
+    type: openingHoursSchema, 
+    required: true 
+  },
+  metro: { 
+    type: String, 
+    required: true 
+  },
+  phone: { 
+    type: String, 
+    required: true 
+  },
+  yandexmap: { 
+    type: String, 
+    required: true 
+  },
+  route: { 
+    type: String, 
+    required: true, 
+    unique: true 
+  },
+  menu: { 
+    type: String, 
+    required: true, 
+    unique: true 
+  },
+  catalog: { 
+    type: Boolean, 
+    required: true 
+  },
+  photo: { 
+    type: photoSchema, 
+    required: true 
+  },
+  halls: { 
+    type: [hallSchema], 
+    required: true 
+  },
+  tagTitle: { 
+    type: String, 
+    required: false 
+  },
+  tagKeywords: { 
+    type: String, 
+    required: false 
+  },
+  eateriesAdminId: { 
+    type: String, 
+    required: false, 
+    default: '' 
+  },
+  payment: { 
+    type: Boolean, 
+    required: false, 
+    default: true 
+  },
+  rating: { 
+    type: [ratingSchema], 
+    required: false, 
+    default: [] 
+  },
+  menuItems: {
+    type: [Schema.Types.ObjectId], 
+    ref: 'menu', // Указываем на коллекцию menu
+    required: false, // Меняем на false, чтобы сделать необязательным
+    default: []
+  },
 });
+
 
 // Метод для удаления устаревших дат в disabledDates
 eateriesSchema.methods.removeExpiredDates = async function() {

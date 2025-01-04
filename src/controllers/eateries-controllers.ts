@@ -9,9 +9,13 @@ import { BadRequestError } from '../utils/bad-request-error-class'
 
 export const getAllEateries = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const eateries = await EateriesModel.find({}).populate({
-            path: 'halls.tables'
-        });
+        const eateries = await EateriesModel.find({})
+            .populate({
+                path: 'halls.tables'
+            })
+            .populate({
+                path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
+            })
 
         if (!eateries.length) {
             throw new NotFoundError('Не найдено ни одного заведения');
@@ -31,6 +35,9 @@ export const getEateriesByName = (req: any, res: Response, next: NextFunction) =
     const eateriesRoute = req.params.eateriesRoute;
 
     EateriesModel.findOne({ route: eateriesRoute })
+        .populate({
+            path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
+        })
         .then((foundBlog) => {
             if (!foundBlog) {
                 throw new NotFoundError('Заведение не найдено');
@@ -59,6 +66,9 @@ export const getEateriesById = (req: any, res: Response, next: NextFunction) => 
             populate: {
                 path: 'orders', // Указываем, что хотим популяцию для поля 'orders'
             }
+        })
+        .populate({
+            path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
         })
         .then((foundEatery) => {
             if (!foundEatery) {
@@ -89,12 +99,16 @@ export const getEateriesByCity = (req: any, res: Response, next: NextFunction) =
 
     const decodedCity = decodeURIComponent(city); // Декодирование значения города
 
-    EateriesModel.find({ city: decodedCity }).populate({
-        path: 'halls.tables',
-        populate: {
-            path: 'orders', // Указываем, что хотим популяцию для поля 'orders'
-        }
-    })
+    EateriesModel.find({ city: decodedCity })
+        .populate({
+            path: 'halls.tables',
+            populate: {
+                path: 'orders', // Указываем, что хотим популяцию для поля 'orders'
+            }
+        })
+        .populate({
+            path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
+        })
         .then((eateries) => {
             if (!eateries.length) {
                 return res.status(200).send({
@@ -696,7 +710,7 @@ export const getRatingByUserAndEateriesRoute = async (req: any, res: Response, n
                 orderId: orderId
             },
         });
-        
+
     } catch (error: any) {
         next(new Error('Произошла ошибка при получении рейтинга'));
     }

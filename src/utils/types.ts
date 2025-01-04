@@ -89,6 +89,7 @@ export interface IEateries {
   eateriesAdminId: string;
   email: string;
   payment: boolean;
+  menuItems?: ObjectId[];
 }
 
 interface Inutrients {

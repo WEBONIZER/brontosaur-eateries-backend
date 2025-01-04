@@ -3,8 +3,9 @@ import {
   NextFunction,
 } from 'express';
 import MenuModel from '../models/menu-model';
-import { RequestCustom } from '../utils/types';
+import EateriesModel from '../models/eateries-model'
 import { NotFoundError } from '../utils/not-found-error-class'
+import { RequestCustom } from '../utils/types';
 
 export const getAllMenuItems = (req: any, res: Response, next: NextFunction) => {
   MenuModel
@@ -39,15 +40,30 @@ export const getMenuItemByID = (req: any, res: Response, next: NextFunction) => 
 };
 
 export const postOneMenuItem = (req: any, res: Response, next: NextFunction) => {
+  const eateryId = req.params.eateryId; // Получаем идентификатор заведения из параметров
   const menuItem = req.body;
 
+  // Сначала создаем новый пункт меню
   MenuModel.create(menuItem)
-    .then((newMenuItem) => {
-      res.status(201).json({ status: 'success', data: newMenuItem });
-    })
-    .catch((error) => {
-      next(new Error('Произошла ошибка при добавлении пункта меню'));
-    });
+      .then((newMenuItem) => {
+          // Затем находим заведение и добавляем новый пункт меню в menuItems
+          return EateriesModel.findByIdAndUpdate(
+              eateryId,
+              { $push: { menuItems: newMenuItem._id } }, // Добавляем ID нового пункта меню в массив menuItems
+              { new: true, useFindAndModify: false } // Возвращаем обновленный объект заведения
+          );
+      })
+      .then((updatedEatery) => {
+          if (!updatedEatery) {
+              throw new NotFoundError('Заведение не найдено');
+          }
+
+          res.status(201).json({ status: 'success', data: updatedEatery });
+      })
+      .catch((error) => {
+          console.error('Error adding menu item:', error);
+          next(new Error('Произошла ошибка при добавлении пункта меню'));
+      });
 };
 
 export const updateMenuItem = (req: any, res: Response, next: NextFunction) => {
@@ -66,17 +82,30 @@ export const updateMenuItem = (req: any, res: Response, next: NextFunction) => {
     });
 };
 
-export const deleteMenuItemByID = (req: any, res: Response, next: NextFunction) => {
-  const { menuItemId } = req.params;
+export const deleteMenuItemByID = (req: RequestCustom, res: Response, next: NextFunction) => {
+  const { menuItemId, eateryId } = req.params;
 
-  MenuModel.findByIdAndDelete(menuItemId)
-    .then((menuItem) => {
-      if (!menuItem) {
-        return res.status(404).json({ message: 'Пункт меню не найден' });
-      }
-      res.status(200).json({ status: 'success', message: 'Пункт меню успешно удалён' });
-    })
-    .catch((error) => {
-      next(new Error('Произошла ошибка при удалении пункта меню'));
-    });
+  // Поиск заведения по eateryId и удаление menuItemId из его массива menuItems
+  EateriesModel.findByIdAndUpdate(
+    eateryId, 
+    { $pull: { menuItems: menuItemId } },
+    { new: true, useFindAndModify: false }
+  )
+  .then((data: any) => {
+
+    // Удаление пункта меню из базы данных
+    return MenuModel.findByIdAndDelete(menuItemId);
+  })
+  .then((deletedMenuItem) => {
+    if (!deletedMenuItem) {
+      // Если пункт меню не был найден
+      return res.status(404).json({ message: 'Пункт меню не найден в базе данных' });
+    }
+
+    res.status(200).json({ status: 'success', message: 'Пункт меню успешно удалён' });
+  })
+  .catch((error) => {
+    console.error('Error deleting menu item:', error);
+    next(new Error('Произошла ошибка при удалении пункта меню'));
+  });
 };
