@@ -90,3 +90,24 @@ export interface IEateries {
   email: string;
   payment: boolean;
 }
+
+interface Inutrients {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbohydrates: number;
+}
+
+export interface IMenu {
+  name: string;
+  weight: number;
+  manufacturer: string;
+  description: string;
+  price: number;
+  photo: string;
+  category: string;
+  restaurant: string;
+  available: boolean;
+  nutrients: Inutrients;
+  new: boolean;
+}

@@ -8,6 +8,7 @@ import errorMdlwr from "./src/middlewares/error";
 import eateries from './src/routes/eateries-routes';
 import tables from './src/routes/tables-routes';
 import orders from './src/routes/orders-router'
+import menu from './src/routes/menu';
 import OrderModel from './src/models/order-model';
 import { WebSocketServer } from 'ws';
  
@@ -39,6 +40,7 @@ if (!MONGO_URL) {
         .use("/eateries", eateries)
         .use("/tables", tables)
         .use('/orders', orders)
+        .use("/menu", menu)
         .use('*', (req, res) => {
           res.status(404).json({ message: 'Not Found' });
         })
