@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 const { API_MENU_KEY } = process.env
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const authMenuMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const apiKey = req.headers['x-api-key'];
 
     // Проверяем наличие API ключа

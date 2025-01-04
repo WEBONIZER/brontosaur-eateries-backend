@@ -6,14 +6,14 @@ import {
     updateMenuItem,
     deleteMenuItemByID
 } from '../controllers/menu';
-import { authMiddleware } from '../middlewares/auth-middlewares';
+import { authMenuMiddleware } from '../middlewares/menu-auth-middlewares';
 
 const menu = Router();
 
-menu.get('/all-items', authMiddleware, getAllMenuItems);
-menu.post('/all-items', authMiddleware, postOneMenuItem);
-menu.get('/all-items/:menuItemId', authMiddleware, getMenuItemByID)
-menu.put('/all-items/:menuItemId', authMiddleware, updateMenuItem);
-menu.delete('/all-items/:menuItemId', authMiddleware, deleteMenuItemByID);
+menu.get('/all-items', authMenuMiddleware, getAllMenuItems);
+menu.post('/all-items', authMenuMiddleware, postOneMenuItem);
+menu.get('/all-items/:menuItemId', authMenuMiddleware, getMenuItemByID)
+menu.put('/all-items/:menuItemId', authMenuMiddleware, updateMenuItem);
+menu.delete('/all-items/:menuItemId', authMenuMiddleware, deleteMenuItemByID);
 
 export default menu; 
