@@ -10,8 +10,11 @@ import tables from './src/routes/tables-routes';
 import orders from './src/routes/orders-router'
 import menu from './src/routes/menu';
 import OrderModel from './src/models/order-model';
+import { autRouter } from './src/routes/aut-routers';
+import { formsRouter } from './src/routes/forms-router';
+import { verificationRouter } from './src/routes/verification-router';
 import { WebSocketServer } from 'ws';
- 
+
 const { WS_PORT, PORT, MONGO_URL } = process.env;
 const MONGO_CONNECT = MONGO_URL ? MONGO_URL : '';
 
@@ -41,6 +44,9 @@ if (!MONGO_URL) {
         .use("/tables", tables)
         .use('/orders', orders)
         .use("/menu", menu)
+        .use("/auth", autRouter)
+        .use("/verification", verificationRouter)
+        .use("/forms", formsRouter)
         .use('*', (req, res) => {
           res.status(404).json({ message: 'Not Found' });
         })

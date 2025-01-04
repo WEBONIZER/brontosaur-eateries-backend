@@ -111,3 +111,40 @@ export interface IMenu {
   nutrients: Inutrients;
   new: boolean;
 }
+
+export interface IRating {
+  userId: string;
+  score: number;
+}
+
+export interface IDataProcessing {
+  consentToDataProcessing: boolean,
+  acceptedUserAgreement: boolean,
+  acceptedPrivacyPolicy: boolean,
+  consentGivenAt: Date,
+  userAgreementVersion: string,
+  dataProcessingVersion: string,
+  privacyPolicyVersion: string,
+  userIpAdress: string,
+}
+
+export interface IUser {
+  userRole: string,
+  orders: string[],
+  phoneNumber: string,
+  fullName: string,
+  email: string,
+  passwordHash: string;
+  favourites: string[],
+  verificationCode: string,
+  isEmailVerified: boolean,
+  phoneVerificationCode: string,
+  isPhoneVerified: boolean,
+  eateriesAdmin: string,
+  userDataProcessing: IDataProcessing,
+}
+
+export interface IEstablishmentNotFound {
+  name: string;
+  city: string;
+}
