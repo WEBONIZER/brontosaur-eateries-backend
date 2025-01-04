@@ -97,6 +97,6 @@ const markAndRemoveExpiredOrders = async () => {
 };
 
 // Запуск функции каждые 3 часа
-setInterval(markAndRemoveExpiredOrders, 3 * 60 * 60 * 1000);
+setInterval(markAndRemoveExpiredOrders, 2 * 60 * 60 * 1000);
 
 export default TableModel;

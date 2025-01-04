@@ -83,8 +83,6 @@ export const getEateriesById = (req: any, res: Response, next: NextFunction) => 
 export const getEateriesByCity = (req: any, res: Response, next: NextFunction) => {
     const { city } = req.body;
 
-    console.log(`Received city: ${city}`); // Для отладки
-
     if (!city) {
         return next(new BadRequestError('Поле "city" обязательно для заполнения'));
     }
