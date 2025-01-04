@@ -42,13 +42,13 @@ export const userCancelledOrder = async (req: RequestCustom, res: Response, next
 
 export const adminCancelledOrder = async (req: RequestCustom, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const { confirmation, userCancelled, active, cancelled } = req.body;
+    const { confirmation, active, cancelled } = req.body;
 
     try {
         // Обновляем запись в базе данных
         const data: any = await OrderModel.findOneAndUpdate(
             { _id: id },
-            { confirmation, userCancelled, active, cancelled },
+            { confirmation, active, cancelled },
             { new: true }
         );
 
