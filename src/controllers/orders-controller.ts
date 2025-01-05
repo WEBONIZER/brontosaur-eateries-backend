@@ -9,7 +9,7 @@ import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
 import fs from 'fs';
 import path from 'path';
-import {transporter} from '../utils/functions'
+import { transporter } from '../utils/functions'
 
 export const getAllOrders = (req: RequestCustom, res: Response, next: NextFunction) => {
     OrderModel.find({})

@@ -111,6 +111,7 @@ export interface IMenu {
   available: boolean;
   nutrients: Inutrients;
   new: boolean;
+  _id?: string;
 }
 
 export interface IRating {

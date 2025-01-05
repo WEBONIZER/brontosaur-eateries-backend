@@ -1,4 +1,6 @@
 import { Request } from 'express';
+import { ObjectId } from 'mongoose';
+import { IMenu } from './types'
 
 export interface RequestCustom extends Request {
   user?: {
@@ -9,6 +11,11 @@ export interface RequestCustom extends Request {
 interface IOrderTime {
   hours: number;
   minutes: string;
+}
+
+interface ImenuItemsBoxArr {
+  item: IMenu;
+  quantiy: number;
 }
 
 export interface IOrder {
@@ -29,7 +36,7 @@ export interface IOrder {
   orderCloseDate: Date;
   startTime: number;
   endTime: number;
-  menuItemsBox: string[];
+  menuItemsBox?: ImenuItemsBoxArr[];
   orderSum: number;
   createdAt?: any;
   userEmail: string;

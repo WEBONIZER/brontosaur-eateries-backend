@@ -11,7 +11,7 @@ const nutrientsSchema = new Schema({
   carbohydrates:{ type: Number },
 });
 
-const menuSchema = new Schema<IMenu>({
+export const menuSchema = new Schema<IMenu>({
   name: {
     type: String,
     required: true,

@@ -1,5 +1,17 @@
 import { Schema, model } from 'mongoose';
 import { IOrder } from '../utils/orders-types';
+import { menuSchema } from './menu-model'
+
+const menuItemsSchema = new Schema({
+  item: {
+    type: menuSchema,
+    required: false
+  },
+  quantiy: {
+    type: Number,
+    required: false
+  },
+});
 
 const orderSchema = new Schema<IOrder>({
   comment: {
@@ -79,8 +91,9 @@ const orderSchema = new Schema<IOrder>({
     required: true,
   },
   menuItemsBox: {
-    type: [String],
-    required: true,
+    type: [menuItemsSchema],
+    required: false, // Меняем на false, чтобы сделать необязательным
+    default: []
   },
   orderSum: {
     type: Number,
