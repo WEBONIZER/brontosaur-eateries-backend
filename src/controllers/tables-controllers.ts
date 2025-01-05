@@ -24,6 +24,30 @@ export const getAllTables = async (req: any, res: Response, next: NextFunction) 
     }
 };
 
+export const getAllTablesByBarId = async (req: any, res: Response, next: NextFunction) => {
+    const { barId } = req.params;
+    console.log(barId)
+
+    try {
+        const tables = await TableModel.find({ barId: barId })
+        .populate({
+            path: 'orders', // Указываем, что хотим популяцию для поля 'menuItems'
+        });
+
+        if (!tables.length) {
+            throw new NotFoundError('Не найдено ни одного стола для указанного barId');
+        }
+
+        res.status(200).send({
+            status: 'success',
+            data: tables,
+        });
+    } catch (error) {
+        console.error('Ошибка при получении столов по barId:', error);
+        next(error);
+    }
+};
+
 export const getTableById = (req: any, res: Response, next: NextFunction) => {
 
     const { tableId } = req.params;

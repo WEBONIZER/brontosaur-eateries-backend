@@ -30,6 +30,7 @@ interface IGuestsToTable {
 export interface ITable {
   number: number;
   hallId: string;
+  barId: string;
   photo?: string;
   places: number;
   chairs: string;

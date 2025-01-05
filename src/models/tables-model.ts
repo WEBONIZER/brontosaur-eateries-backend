@@ -18,6 +18,10 @@ const tableSchema = new Schema<ITable>({
         type: String,
         required: true
     },
+    barId: {
+        type: String,
+        required: true
+    },
     places: {
         type: Number,
         required: true
