@@ -111,6 +111,7 @@ const orderSchema = new Schema<IOrder>({
     type: Number,
     required: false,
     unique: false,
+    default: 0 // Значение по умолчанию
   },
   userEmail: {
     type: String,
