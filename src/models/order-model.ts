@@ -109,7 +109,8 @@ const orderSchema = new Schema<IOrder>({
   },
   orderSumWithServiceCharge: {
     type: Number,
-    required: true,
+    required: false,
+    unique: false,
   },
   userEmail: {
     type: String,
