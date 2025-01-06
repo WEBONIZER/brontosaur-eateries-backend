@@ -21,6 +21,8 @@ interface ImenuItemsBoxArr {
 export interface IOrder {
   comment: string;
   userID: string;
+  userPhone: string;
+  userName: string;
   tableId: string;
   orderNumber: number;
   active: boolean;
@@ -38,6 +40,7 @@ export interface IOrder {
   endTime: number;
   menuItemsBox?: ImenuItemsBoxArr[];
   orderSum: number;
+  orderSumWithServiceCharge: number;
   createdAt?: any;
   userEmail: string;
   eaterieEmail: string;

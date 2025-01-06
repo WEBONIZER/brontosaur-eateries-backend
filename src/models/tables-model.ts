@@ -12,7 +12,8 @@ const tableSchema = new Schema<ITable>({
     },
     photo: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     hallId: {
         type: String,

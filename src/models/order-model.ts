@@ -22,6 +22,14 @@ const orderSchema = new Schema<IOrder>({
     type: String,
     required: true,
   },
+  userName: {
+    type: String,
+    required: true,
+  },
+  userPhone: {
+    type: String,
+    required: true,
+  },
   tableId: {
     type: String,
     required: true,
@@ -96,6 +104,10 @@ const orderSchema = new Schema<IOrder>({
     default: []
   },
   orderSum: {
+    type: Number,
+    required: true,
+  },
+  orderSumWithServiceCharge: {
     type: Number,
     required: true,
   },
