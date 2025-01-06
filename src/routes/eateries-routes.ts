@@ -49,7 +49,7 @@ eateries.patch('/:eateriesRoute/halls/:hallRoute/tables/:tableNumber/orders/:ord
 eateries.patch('/:eateriesRoute/views', authMiddleware, addViewsToEaterie);
 
 eateries.post('/:eateriesRoute/disabled-dates', authMiddleware, addDisabledDatesToEaterie);
-eateries.delete('/:eateriesRoute/disabled-dates', authMiddleware, removeDisabledDatesFromEaterie);
+eateries.delete('/:eateriesRoute/remove-disabled-dates', authMiddleware, removeDisabledDatesFromEaterie);
 
 eateries.post('/:eateriesRoute/add-rating', authMiddleware, addRatingToEaterie);
 eateries.delete('/:eateriesRoute/delete-rating/:ratingId', authMiddleware, deleteRatingInEaterie);
