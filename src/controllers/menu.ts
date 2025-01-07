@@ -8,7 +8,7 @@ import { NotFoundError } from '../utils/not-found-error-class'
 import { RequestCustom } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { s3, deleteFileFromS3 } from '../utils/functions'
-import { PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { PutObjectCommandInput, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 
 export const getAllMenuItems = (req: any, res: Response, next: NextFunction) => {
@@ -160,30 +160,29 @@ export const saveFileToMenuItem = async (req: any, res: Response, next: NextFunc
   const { menuItemId, url } = req.body;
 
   try {
-    // Проверяем, существует ли пункт меню
     const menuItem = await MenuModel.findById(menuItemId);
 
     if (!menuItem) {
       return res.status(404).json({ status: "fail", message: "Пункт меню не найден" });
     }
 
-    // Удаляем старое фото, если оно есть
-    if (menuItem.photo) {
-      // Извлекаем полный ключ объекта из URL
-      const oldFileName = menuItem.photo.replace("https://s3.ru1.storage.beget.cloud/", "");
-      console.log("Удаляем файл из S3:", oldFileName); // Логируем ключ удаляемого файла
+    // Предварительная обработка для удаления лишней приставки
+    const prefixToRemove = "https://s3.ru1.storage.beget.cloud/3aaacc647142-brontosaur/";
+    const photoUrl = menuItem.photo;
 
-      await deleteFileFromS3(oldFileName); // Удаляем файл
+    if (photoUrl && photoUrl.includes(prefixToRemove)) {
+      const oldFileName = photoUrl.replace(prefixToRemove, "");
+      console.log("Удаляем файл из S3:", oldFileName);
+
+      await deleteFileFromS3(oldFileName);
     }
 
-    // Обновляем photo
     const updatedMenuItem = await MenuModel.findByIdAndUpdate(
       menuItemId,
       { photo: url },
       { new: true }
     );
 
-    // Возвращаем успешный ответ
     res.status(200).json({
       message: "Изображение успешно сохранено",
       menuItem: updatedMenuItem,
