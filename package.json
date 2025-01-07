@@ -21,6 +21,12 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.723.0",
+    "@aws-sdk/lib-storage": "^3.723.0",
+    "@types/aws-sdk": "^0.0.42",
+    "@types/multer": "^1.4.12",
+    "@types/uuid": "^10.0.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -30,8 +36,10 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.9",
+    "uuid": "^11.0.4",
     "ws": "^8.18.0"
   }
 }

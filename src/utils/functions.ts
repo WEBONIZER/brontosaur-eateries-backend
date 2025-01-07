@@ -2,8 +2,66 @@ import fs from 'fs';
 import nodemailer, { TransportOptions } from "nodemailer";
 import dotenv from 'dotenv'
 import path from 'path';
+import { S3Client, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 
 dotenv.config()
+
+const { S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env
+
+if (!S3_ACCESS_KEY_ID || !S3_SECRET_ACCESS_KEY || !S3_ENDPOINT) {
+    throw new Error("Отсутствует значение одной или нескольких необходимых переменных окружения для конфигурации S3Client");
+}
+
+export const s3 = new S3Client({
+    region: "ru-1", // Регион (проверьте в документации вашего хранилища)
+    endpoint: S3_ENDPOINT, // Путь до S3 сервиса
+    credentials: {
+        accessKeyId: S3_ACCESS_KEY_ID,
+        secretAccessKey: S3_SECRET_ACCESS_KEY,
+    },
+    forcePathStyle: true, // Аналог s3ForcePathStyle
+});
+
+export const deleteFileFromS3 = async (fileKey: string) => {
+    // Формируем параметры удаления динамически
+    const deleteParams = {
+        Bucket: "3aaacc647142-brontosaur", // Ваш установленный Bucket
+        Key: fileKey,
+    };
+
+    console.log("Параметры удаления:", deleteParams); // Логируем параметры
+
+    try {
+        // Выполняем удаление
+        const result = await s3.send(new DeleteObjectCommand(deleteParams));
+        console.log("Результат удаления:", result); // Успешное удаление
+    } catch (error) {
+        console.error("Ошибка при удалении файла из S3:", error); // Обрабатываем исключения
+    }
+};
+
+const checkIfFileExists = async (fileName: string) => {
+    const params = {
+        Bucket: "3aaacc647142-brontosaur",
+        Key: fileName,
+    };
+
+    try {
+        await s3.send(new HeadObjectCommand(params));
+        console.log("Файл всё ещё существует:", fileName);
+    } catch (err: any) {
+        if (err.name === "NotFound") {
+            console.log("Файл успешно удалён:", fileName);
+        } else {
+            console.error("Ошибка при проверке объекта:", err);
+        }
+    }
+};
+
+// Вызов функции проверки
+checkIfFileExists(
+    "hinkali-proletarskaya/menu/9001e2f9-819f-4f24-b63d-f072db97e4d3-1.png"
+);
 
 export const transporter: nodemailer.Transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
