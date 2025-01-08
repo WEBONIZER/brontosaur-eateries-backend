@@ -85,8 +85,11 @@ transporter.verify((error, success) => {
 export const sendMailToUser = (data: any, template: string, subject: string) => {
     // Получаем email пользователя из данных модели
     const userEmail = data.userEmail;
-    if (!userEmail) {
-        throw new Error('Email пользователя не найден');
+
+    // Проверяем, есть ли email пользователя
+    if (!userEmail || userEmail.trim() === '') {
+        console.warn('Email пользователя не найден. Письмо не отправлено.');
+        return; // Выход из функции, если email отсутствует
     }
 
     // Читаем HTML-шаблон пользователя
@@ -105,7 +108,7 @@ export const sendMailToUser = (data: any, template: string, subject: string) => 
 
     // Настраиваем параметры письма пользователю
     const mailUserOptions = {
-        from: `"Brontosaur" <${process.env.EMAIL_USER}>`,
+        from: `Brontosaur <${process.env.EMAIL_USER}>`,
         to: userEmail,
         subject: subject,
         html: customizedUserEmailHtml,
@@ -116,16 +119,19 @@ export const sendMailToUser = (data: any, template: string, subject: string) => 
         if (error) {
             console.error(`Ошибка отправки email на ${userEmail}:`, error);
         } else {
-            console.log(`Письмо отправлено на ${userEmail}: ${info.response}`);
+            //console.log(`Письмо отправлено на ${userEmail}: ${info.response}`);
         }
     });
-}
+};
 
 export const sendMailToAdmin = (data: any, template: string, subject: string) => {
     // Получаем email админа из данных модели
     const adminEmail = data.eaterieEmail;
-    if (!adminEmail) {
-        throw new Error('Email пользователя не найден');
+
+    // Проверяем, есть ли email админа
+    if (!adminEmail || adminEmail.trim() === '') {
+        console.warn('Email администратора не найден. Письмо не отправлено.');
+        return; // Выход из функции, если email отсутствует
     }
 
     // Читаем HTML-шаблон админа
@@ -144,7 +150,7 @@ export const sendMailToAdmin = (data: any, template: string, subject: string) =>
 
     // Настраиваем параметры письма админу
     const mailAdminOptions = {
-        from: `"Brontosaur" <${process.env.EMAIL_USER}>`,
+        from: `Brontosaur <${process.env.EMAIL_USER}>`,
         to: adminEmail,
         subject: subject,
         html: customizedAdminEmailHtml,
@@ -155,7 +161,7 @@ export const sendMailToAdmin = (data: any, template: string, subject: string) =>
         if (error) {
             console.error(`Ошибка отправки email на ${adminEmail}:`, error);
         } else {
-            console.log(`Письмо отправлено на ${adminEmail}: ${info.response}`);
+            //console.log(`Письмо отправлено на ${adminEmail}: ${info.response}`);
         }
     });
-}
+};

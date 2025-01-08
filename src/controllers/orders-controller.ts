@@ -9,7 +9,7 @@ import { NotFoundError } from '../utils/not-found-error-class'
 import { BadRequestError } from '../utils/bad-request-error-class'
 import fs from 'fs';
 import path from 'path';
-import { transporter } from '../utils/functions'
+import { transporter, sendMailToUser, sendMailToAdmin } from '../utils/functions'
 
 export const getAllOrders = (req: RequestCustom, res: Response, next: NextFunction) => {
     OrderModel.find({})
@@ -116,12 +116,10 @@ export const postOneOrder = async (req: RequestCustom, res: Response) => {
             barName,
         } = req.body;
 
-        // Проверяем наличие tableId
         if (!tableId) {
             return res.status(400).json({ error: 'tableId is required' });
         }
 
-        // Проверяем, существует ли стол с данным ID
         const table = await TableModel.findById(tableId);
         if (!table) {
             return res.status(404).json({ error: 'Table not found' });
@@ -136,7 +134,6 @@ export const postOneOrder = async (req: RequestCustom, res: Response) => {
             newOrderNumber = maxOrderNumber.orderNumber + 1;
         }
 
-        // Создаем новый заказ
         const newOrder = new OrderModel({
             comment,
             userID,
@@ -166,59 +163,11 @@ export const postOneOrder = async (req: RequestCustom, res: Response) => {
         });
 
         // Опционально: отправляем подтверждающее письмо пользователю
-        const templatePath = path.join(__dirname, 'html-templates', 'order-to-user-template.html');
-        let confirmationHtml = fs.readFileSync(templatePath, 'utf8')
-
-        const customizedConfirmationHtml = confirmationHtml
-            .replace('{{barName}}', barName)
-            .replace('{{orderNumber}}', newOrderNumber.toString())
-            .replace('{{guests}}', guests)
-            .replace('{{tableNumber}}', tableNumber)
-            .replace('{{date}}', date)
-            .replace('{{startTime}}', startTime)
-
-        const mailOptions = {
-            from: `"Brontosaur" <${process.env.EMAIL_USER}>`,
-            to: `${userEmail}`,
-            subject: 'Заказ в BRONTOSAUR создан',
-            html: customizedConfirmationHtml,
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error(`Error sending confirmation email to ${userEmail}:`, error);
-            } else {
-                console.log(`Confirmation email sent to ${userEmail}: ${info.response}`);
-            }
-        });
-
+        sendMailToUser(newOrder, 'order-to-user-template.html', 'Заказ в BRONTOSAUR создан')
+        
         // Опционально: отправляем подтверждающее письмо администратору
-        const templateAdminPath = path.join(__dirname, 'html-templates', 'order-to-admin-template.html');
-        let confirmationAdminHtml = fs.readFileSync(templateAdminPath, 'utf8')
-
-        const customizedConfirmationAdminHtml = confirmationAdminHtml
-            .replace('{{barName}}', barName)
-            .replace('{{orderNumber}}', newOrderNumber.toString())
-            .replace('{{guests}}', guests)
-            .replace('{{tableNumber}}', tableNumber)
-            .replace('{{date}}', date)
-            .replace('{{startTime}}', startTime)
-
-        const mailAdminOptions = {
-            from: `"Brontosaur" <${process.env.EMAIL_USER}>`,
-            to: `${eaterieEmail}`,
-            subject: 'Заказ из BRONTOSAUR',
-            html: customizedConfirmationAdminHtml,
-        };
-
-        transporter.sendMail(mailAdminOptions, (error, info) => {
-            if (error) {
-                console.error(`Error sending confirmation email to ${eaterieEmail}:`, error);
-            } else {
-                console.log(`Confirmation email sent to ${eaterieEmail}: ${info.response}`);
-            }
-        });
-
+        sendMailToAdmin(newOrder, 'order-to-admin-template.html', 'Заказ из BRONTOSAUR')
+        
         const savedOrder = await newOrder.save();
 
         await TableModel.findByIdAndUpdate(

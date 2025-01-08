@@ -20,7 +20,7 @@ const orderSchema = new Schema<IOrder>({
   },
   userID: {
     type: String,
-    required: true,
+    required: false,
   },
   userName: {
     type: String,
