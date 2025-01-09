@@ -46,10 +46,12 @@ export const getMenuItemByID = (req: any, res: Response, next: NextFunction) => 
 export const postOneMenuItem = (req: any, res: Response, next: NextFunction) => {
   const eateryId = req.params.eateryId; // Получаем идентификатор заведения из параметров
   const menuItem = req.body;
+  let createdMenuItem: any; // Промежуточная переменная для хранения созданного пункта меню
 
   // Сначала создаем новый пункт меню
   MenuModel.create(menuItem)
     .then((newMenuItem) => {
+      createdMenuItem = newMenuItem; // Сохраняем созданный пункт меню
       // Затем находим заведение и добавляем новый пункт меню в menuItems
       return EateriesModel.findByIdAndUpdate(
         eateryId,
@@ -62,7 +64,14 @@ export const postOneMenuItem = (req: any, res: Response, next: NextFunction) => 
         throw new NotFoundError('Заведение не найдено');
       }
 
-      res.status(201).json({ status: 'success', data: updatedEatery });
+      // Возвращаем оба объекта: заведение и пункт меню
+      res.status(201).json({ 
+        status: 'success', 
+        data: {
+          updatedEatery,
+          createdMenuItem
+        }
+      });
     })
     .catch((error) => {
       console.error('Error adding menu item:', error);
@@ -86,32 +95,38 @@ export const updateMenuItem = (req: any, res: Response, next: NextFunction) => {
     });
 };
 
-export const deleteMenuItemByID = (req: RequestCustom, res: Response, next: NextFunction) => {
+export const deleteMenuItemByID = async (req: RequestCustom, res: Response, next: NextFunction) => {
   const { menuItemId, eateryId } = req.params;
 
-  // Поиск заведения по eateryId и удаление menuItemId из его массива menuItems
-  EateriesModel.findByIdAndUpdate(
-    eateryId,
-    { $pull: { menuItems: menuItemId } },
-    { new: true, useFindAndModify: false }
-  )
-    .then((data: any) => {
+  try {
+    // Поиск заведения по eateryId и удаление menuItemId из его массива menuItems
+    await EateriesModel.findByIdAndUpdate(
+      eateryId,
+      { $pull: { menuItems: menuItemId } },
+      { new: true, useFindAndModify: false }
+    );
 
-      // Удаление пункта меню из базы данных
-      return MenuModel.findByIdAndDelete(menuItemId);
-    })
-    .then((deletedMenuItem) => {
-      if (!deletedMenuItem) {
-        // Если пункт меню не был найден
-        return res.status(404).json({ message: 'Пункт меню не найден в базе данных' });
-      }
+    // Находим и удаляем пункт меню из базы данных
+    const menuItem = await MenuModel.findByIdAndDelete(menuItemId);
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Пункт меню не найден в базе данных' });
+    }
 
-      res.status(200).json({ status: 'success', message: 'Пункт меню успешно удалён' });
-    })
-    .catch((error) => {
-      console.error('Error deleting menu item:', error);
-      next(new Error('Произошла ошибка при удалении пункта меню'));
-    });
+    // Проверяем наличие фото и удаляем его из S3
+    const prefixToRemove = "https://s3.ru1.storage.beget.cloud/3aaacc647142-brontosaur/";
+    const photoUrl = menuItem.photo;
+
+    if (photoUrl && photoUrl.includes(prefixToRemove)) {
+      const oldFileName = photoUrl.replace(prefixToRemove, "");
+      console.log("Удаляем файл из S3:", oldFileName);
+      await deleteFileFromS3(oldFileName);
+    }
+
+    res.status(200).json({ status: 'success', message: 'Пункт меню и фото успешно удалены' });
+  } catch (error) {
+    console.error("Ошибка при удалении:", error);
+    next(new Error("Произошла ошибка при удалении пункта меню"));
+  }
 };
 
 // API для загрузки файла (без сохранения в пункт меню)
@@ -158,30 +173,59 @@ export const uploadFile = async (req: any, res: Response, next: NextFunction) =>
 // API для сохранения URL в пункте меню
 export const saveFileToMenuItem = async (req: any, res: Response, next: NextFunction) => {
   const { menuItemId, url } = req.body;
+  const eateryId = req.params.eateryId; // Получаем идентификатор заведения
+  let menuItem;
 
   try {
-    const menuItem = await MenuModel.findById(menuItemId);
+    // Если menuItemId пустое, создаем новый пункт меню
+    if (!menuItemId || menuItemId === "") {
+      menuItem = new MenuModel({
+        name: "Название блюда",
+        description: "Описание блюда",
+        price: 50,
+        category: "Категория",
+        restaurant: "Temporary Restaurant",
+        available: true,
+        photo: "",
+        new: true,
+      });
+      // Сохраняем новый пункт меню
+      menuItem = await menuItem.save();
 
-    if (!menuItem) {
-      return res.status(404).json({ status: "fail", message: "Пункт меню не найден" });
+      // Добавляем ID нового пункта меню в массив menuItems заведения
+      if (eateryId) {
+        const updatedEatery = await EateriesModel.findByIdAndUpdate(
+          eateryId,
+          { $push: { menuItems: menuItem._id } }, // Добавляем ID пункта меню
+          { new: true, useFindAndModify: false } // Возвращаем обновленный объект
+        );
+
+        if (!updatedEatery) {
+          return res.status(404).json({ status: "fail", message: "Заведение не найдено" });
+        }
+        console.log("Добавлен пункт меню в заведение:", updatedEatery);
+      }
+    } else {
+      // Если menuItemId существует, находим пункт меню в базе данных
+      menuItem = await MenuModel.findById(menuItemId);
+      if (!menuItem) {
+        return res.status(404).json({ status: "fail", message: "Пункт меню не найден" });
+      }
     }
 
-    // Предварительная обработка для удаления лишней приставки
+    // Предварительная обработка для удаления старого фото из S3
     const prefixToRemove = "https://s3.ru1.storage.beget.cloud/3aaacc647142-brontosaur/";
     const photoUrl = menuItem.photo;
 
     if (photoUrl && photoUrl.includes(prefixToRemove)) {
       const oldFileName = photoUrl.replace(prefixToRemove, "");
       console.log("Удаляем файл из S3:", oldFileName);
-
       await deleteFileFromS3(oldFileName);
     }
 
-    const updatedMenuItem = await MenuModel.findByIdAndUpdate(
-      menuItemId,
-      { photo: url },
-      { new: true }
-    );
+    // Обновляем пункт меню новым фото
+    menuItem.photo = url;
+    const updatedMenuItem = await menuItem.save();
 
     res.status(200).json({
       message: "Изображение успешно сохранено",

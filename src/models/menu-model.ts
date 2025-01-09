@@ -5,10 +5,22 @@ import {
 import { IMenu } from '../utils/types';
 
 const nutrientsSchema = new Schema({
-  calories:{ type: Number },
-  protein:{ type: Number },
-  fat:{ type: Number },
-  carbohydrates:{ type: Number },
+  calories:{ 
+    type: Number,
+    default: 0
+  },
+  protein:{ 
+    type: Number,
+    default: 0
+  },
+  fat:{ 
+    type: Number,
+    default: 0 
+  },
+  carbohydrates:{ 
+    type: Number,
+    default: 0
+  },
 });
 
 export const menuSchema = new Schema<IMenu>({
@@ -34,7 +46,8 @@ export const menuSchema = new Schema<IMenu>({
   },
   photo: {
     type: String,
-    required: true,
+    required: false,
+    default: ''
   },
   category: {
     type: String,
@@ -51,10 +64,12 @@ export const menuSchema = new Schema<IMenu>({
   nutrients: {
     type: nutrientsSchema,
     required: false,
+    default: {}
   },
   new: {
     type: Boolean,
     required: false,
+    default: true
   },
 },
 {

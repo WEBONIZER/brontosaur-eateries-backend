@@ -20,6 +20,6 @@ menu.get('/all-items/:menuItemId', authMenuMiddleware, getMenuItemByID)
 menu.put('/all-items/:menuItemId', authMenuMiddleware, updateMenuItem);
 menu.delete('/all-items/:eateryId/:menuItemId', authMenuMiddleware, deleteMenuItemByID);
 menu.post('/upload-image', upload.single('file'), uploadFile);
-menu.post('/save-image', saveFileToMenuItem);
+menu.post('/save-image/:eateryId', saveFileToMenuItem);
 
 export default menu; 
