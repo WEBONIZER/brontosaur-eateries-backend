@@ -57,6 +57,11 @@ export const menuSchema = new Schema<IMenu>({
     type: String,
     required: true,
   },
+  moderate: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   available: {
     type: Boolean,
     required: true,

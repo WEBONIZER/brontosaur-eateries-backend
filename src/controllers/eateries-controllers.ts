@@ -11,11 +11,12 @@ export const getAllEateries = async (req: any, res: Response, next: NextFunction
     try {
         const eateries = await EateriesModel.find({})
             .populate({
-                path: 'halls.tables'
+                path: 'halls.tables',
             })
             .populate({
-                path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
-            })
+                path: 'menuItems', // Указываем популяцию для поля 'menuItems'
+                match: { moderate: { $ne: false } }, // Исключаем пункты меню с maderate === false
+            });
 
         if (!eateries.length) {
             throw new NotFoundError('Не найдено ни одного заведения');
@@ -108,6 +109,7 @@ export const getEateriesByCity = (req: any, res: Response, next: NextFunction) =
         })
         .populate({
             path: 'menuItems', // Указываем, что хотим популяцию для поля 'menuItems'
+            match: { moderate: { $ne: false } }, // Исключаем пункты меню с maderate === false
         })
         .then((eateries) => {
             if (!eateries.length) {

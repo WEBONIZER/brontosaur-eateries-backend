@@ -13,10 +13,10 @@ import { Upload } from "@aws-sdk/lib-storage";
 
 export const getAllMenuItems = (req: any, res: Response, next: NextFunction) => {
   MenuModel
-    .find({})
+    .find({ moderate: { $ne: false } }) // Исключаем пункты, где maderate === false
     .then((data) => {
       if (!data.length) {
-        throw new NotFoundError('Не найдено ни одного пункта меню');
+        throw new NotFoundError('Не найдено ни одного подходящего пункта меню');
       }
       res.status(200).send({
         status: 'success',

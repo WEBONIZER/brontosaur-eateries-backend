@@ -112,6 +112,7 @@ export interface IMenu {
   available: boolean;
   nutrients: Inutrients;
   new: boolean;
+  moderate: boolean;
   _id?: string;
 }
 
