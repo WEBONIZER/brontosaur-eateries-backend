@@ -151,4 +151,5 @@ export interface IUser {
 export interface IEstablishmentNotFound {
   name: string;
   city: string;
+  comment: string;
 }

@@ -13,6 +13,11 @@ const EstablishmentNotFoundhema = new Schema<IEstablishmentNotFound>(
         city: {
             type: String,
             required: true,
+        },
+        comment: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
     {

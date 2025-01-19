@@ -5,7 +5,7 @@ import { EstablishmentNotFoundModel } from '../models/forms-models'
 import { transporter } from '../utils/functions'
 
 export const saveAndSendEmail = async (req: any, res: Response) => {
-    const { name, city } = req.body;
+    const { name, city, comment } = req.body;
 
     // Проверка на наличие всех необходимых полей
     if (!name || !city) {
@@ -14,19 +14,20 @@ export const saveAndSendEmail = async (req: any, res: Response) => {
 
     try {
         // Сохранение данных в базу
-        const establishment = new EstablishmentNotFoundModel({ name, city });
+        const establishment = new EstablishmentNotFoundModel({ name, city, comment });
         await establishment.save();
 
         // Настройки письма
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'fox.spb@bk.ru',
-            subject: 'Новое заведение для добавления',
+            subject: 'Не получилось найти заведение',
             html: `
           <div style="font-family: Arial, sans-serif; color: #333;">
-            <h1>Заведение не было найдено</h1>
+            <h1>Хочу видеть на страницах вашего сервиса заведение:</h1>
             <p><strong>Название:</strong> ${name}</p>
             <p><strong>Город:</strong> ${city}</p>
+            <p><strong>Комментарий:</strong> ${comment}</p>
           </div>
         `,
         };
