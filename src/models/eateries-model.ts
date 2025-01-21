@@ -109,7 +109,8 @@ const eateriesSchema = new Schema<IEaterieDocument>({
   },
   metro: { 
     type: String, 
-    required: true 
+    required: false, 
+    default: '' 
   },
   phone: { 
     type: String, 
